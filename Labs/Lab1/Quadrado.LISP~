@@ -1,0 +1,2 @@
+(defun quadrado(n)
+  (* n n))
