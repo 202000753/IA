@@ -120,6 +120,34 @@
 (defun criar-pares (lista1 lista2)
   (cond 
    ((or (/= (list-length lista1) (list-length lista2)) (null lista1) (null lista2)) nil)
-   (t ())
+   (t (cons (cons (first lista1) (first lista2)) (cons (cons (second lista1) (second lista2)) (cons (third lista1) (third lista2)))))
   )
 )
+
+;11
+(defun verifica-pares (lista)
+  (append () (cond
+               ((restop (first lista) 2 0) '(t))
+                (t '(nil))
+               ) (cond
+                  ((restop (second lista) 2 0) '(t))
+                  (t '(nil))
+                 ) (cond
+                     ((restop (third lista) 2 0) '(t))
+                     (t '(nil))
+                    )(cond
+                      ((restop (fourth lista) 2 0) '(t))
+                      (t '(nil))
+                     ))
+)
+
+;12
+(defun rodar (lista sentido)
+  (cond
+   ((equal sentido 'esq) lista)
+   ((equal sentido 'dir) lista)
+   (t nil)
+  )
+)
+
+;13

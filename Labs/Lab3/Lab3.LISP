@@ -144,8 +144,8 @@
 ;12
 (defun rodar (lista sentido)
   (cond
-   ((equal sentido 'esq) lista)
-   ((equal sentido 'dir) lista)
+   ((equal sentido 'esq) (cons (cons (fourth lista) (first lista)) (cons (second lista) (third lista))))
+   ((equal sentido 'dir) (cons (cons (second lista) (third lista)) (cons (fourth lista) (first lista))))
    (t nil)
   )
 )

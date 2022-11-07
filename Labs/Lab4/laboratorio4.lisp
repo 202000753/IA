@@ -1,0 +1,100 @@
+;;;; laboratorio4.lisp
+;;;; Disciplina de IA - 2022 / 2023
+;;;; Laboratorio sobre funcoes recursivas e boas praticas de programacao em Lisp
+
+
+
+;;; Exercicio Introdutorio.
+;; comprimento de uma lista
+;;(comprimento '(1 2 3 4 5)) ;teste a
+(defun comprimento(lista)
+"Recebe uma lista e retorna um valor inteiro que indica quantos elementos existem nesta lista"
+  (cond
+   ((null lista) 0)
+   (t (1+ (comprimento (cdr lista))))
+  )
+)
+
+;; tamanho-das-sublistas
+(defun tamanho-das-sublistas (lista)
+"Recebe uma lista constituida por sublistas e retorna uma lista com valores inteiros que indicadam o comprimento das respetivas sublistas"
+  (cond 
+    ((null lista) nil)
+    (T (cons (comprimento (car lista)) (tamanho-das-sublistas (cdr lista))))
+  )
+)
+
+;;; Exercicio sobre funcoes recursivas
+
+;; factorial
+;;(factorial 10) ;teste fatorial
+(defun factorial (n)
+  (cond
+   ((<= n 1) 1)
+   (t (* n (factorial (1- n))))
+  )
+)
+
+;; n-esimo
+;;(n-esimo 3 '(2 5 10 22 30)) ;teste n-esimo
+(defun n-esimo (n lista)
+  (cond
+   ((= 0 n) (car lista))
+   (t (n-esimo (1- n) (cdr lista)))
+  )
+)
+
+;; soma-lista
+;;(soma-lista '(1 2 3 3 4 4 5 )) ;teste soma-lista
+(defun soma-lista (lista)
+  (cond
+   ((= 1 (comprimento lista)) (car lista))
+   (t (+ (car lista) (soma-lista (cdr lista))))
+  )
+)
+
+;; existe
+;;(existe 3 '(1 2 3 3 4 5)) ;teste existe
+(defun existe (n lista)
+  (cond
+   ((= (car lista) n) lista)
+   (t (existe n (cdr lista)))
+  )
+)
+
+;; junta
+;;(junta '(1 (2 3) ) '(3 (4) 5) ) ;teste junta
+(defun junta (lista1 lista2)
+  (cond 
+   ((null lista1) lista2)
+   (t (cons(car lista1) (junta (cdr lista1) lista2)))
+  )
+)
+
+;; inverte
+;;(inverte '(1 2 3 (5 6) 7) ) ;teste inverte
+(defun inverte (lista)
+  (cond
+   ((null lista) '())
+   (T (append (inverte (cdr lista)) (list (car lista))))
+  )
+) 
+
+;; conta-atomos
+;;(conta-atomos '(1 2 3 (5 6) 7)) ;teste conta-atomos
+(defun conta-atomos (lista)
+  (cond 
+   ((null lista) 0)
+   ((atom lista) 1)
+   (t (+ (conta-atomos (car lista)) (conta-atomos(cdr lista))))
+  )
+)
+
+;; alisa
+;;(alisa '(1 2 3 (3 4) (4 5) )) ;teste alisa
+(defun alisa (lista)
+  (cond
+   ((atom lista) nil)
+   (T (apply 'append (list lista) (mapcar 'alisa lista)))
+  )
+)
