@@ -61,32 +61,40 @@
    (t (existe n (cdr lista)))
   )
 )
+
 ;; junta
 ;;(junta '(1 (2 3) ) '(3 (4) 5) ) ;teste junta
-(defun junta (list1 list2)
-  (cond ((null list1) list2)
-        (t (cons(car list1) (junta (cdr list1) list2)))
-        )
+(defun junta (lista1 lista2)
+  (cond 
+   ((null lista1) lista2)
+   (t (cons(car lista1) (junta (cdr lista1) lista2)))
   )
+)
 
 ;; inverte
-(defun inverte (l)
+;;(inverte '(1 2 3 (5 6) 7) ) ;teste inverte
+(defun inverte (lista)
   (cond
-   ((null l) '())
-   (T (append (inverte (cdr l)) (list (car l)))))) 
+   ((null lista) '())
+   (T (append (inverte (cdr lista)) (list (car lista))))
+  )
+) 
 
 ;; conta-atomos
-(defun conta-atomos (l)
-  (cond ((null l) 0)
-        ((atom l) 1)
-        (t (+ (conta-atomos (car l))
-              (conta-atomos
-               (cdr l))))))
+;;(conta-atomos '(1 2 3 (5 6) 7)) ;teste conta-atomos
+(defun conta-atomos (lista)
+  (cond 
+   ((null lista) 0)
+   ((atom lista) 1)
+   (t (+ (conta-atomos (car lista)) (conta-atomos(cdr lista))))
+  )
+)
 
 ;; alisa
+;;(alisa '(1 2 3 (3 4) (4 5) )) ;teste alisa
 (defun alisa (l)
   (cond
    ((atom l) nil)
    (T (apply 'append (list l) (mapcar 'alisa l)))
-   )
   )
+)

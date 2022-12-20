@@ -1,0 +1,2485 @@
+P01 
+  (*) Find the last box of a list.
+(defun my_last (lista)
+  (if (null lista)
+      nil
+    (if (null (rest lista))
+	lista			 ; testa se a lista so tem um elemento
+      (my_last (rest lista))		; recursao no resto da lista
+      )
+    )
+  )
+
+P02 
+  (*) Find the last but one box of a list.
+(defun penultimo (lista)
+  (let ((reverso (reverse lista)))	; coloca na variavel reverso o
+					; reverse de lista
+    (cond
+     ((null reverso) nil)
+     ;; se a lista tem 2 ou menos elementos, retorno a propria
+     ((<= (length reverso) 2)Â  lista)
+     ;; se tiver mais de 2 elementos, construo uma lista
+     (t (list (second reverso) (first reverso)))
+     )
+    )
+  )
+
+P03 
+  (*) Find the K'th element of a list.
+;;; Função que retorna o elemento na K-ésima posição de ;;;
+;;; uma lista. Se a posição desejada eh maior que a     ;;;
+;;; última da lista, retorna NIL.                       ;;;
+
+(defun element-at (org-list pos &optional (ini 1))
+    (if (eql ini pos)
+        (car org-list)
+        (element-at (cdr org-list) pos (+ ini 1))))
+
+;;; Outra solucao
+
+(defun element-at (lista n)
+  (if (= n 1)
+      ;; o primeiro elemento esta na posicao 1
+      (first lista)
+    (element-at (rest lista) (1- n))
+    )
+  )
+
+P04 
+  (*) Find the number of elements of a list.
+(defun comprimento (lista)
+  (if (null lista)
+      0
+    (1+ (comprimento (rest lista)))))
+
+P05 
+  (*) Reverse a list.
+(defun inverte (lista)
+  (inverte-aux lista () )
+  )
+
+(defun inverte-aux (lista resto)
+  (if (null lista)
+      resto
+    (inverte-aux (rest lista) (cons (first lista) resto) )
+    )
+  )
+
+P06 
+  (*) Find out whether a list is a palindrome.
+(defun palin (lista)
+  (equal lista (reverse lista))
+  )
+
+P07 
+  (**) Flatten a nested list structure.
+;;;  Recebe uma lista e retorna uma lista que, no lugar dos     ;;;
+;;;  elementos que são sub-listas, possui os elementos dessas   ;;;
+;;;  sub-listas, recursivamente.                                ;;;
+
+(defun flatten (orig-list)
+    (if (eql orig-list nil)
+        nil
+        (let ((elem (car orig-list)) (resto-list (cdr orig-list)))
+            (if (listp elem)
+                (append (flatten elem) (flatten resto-list))
+                (append (cons elem nil) (flatten resto-list))))))
+
+
+P08 
+  (**) Eliminate consecutive duplicates of list elements.
+(defun compress (lista)
+  (cond
+   ((null lista) nil)
+   ((null (cdr lista)) lista)
+   ;; se o primeiro elemento (de lista) e' igual ao consecutivo
+   ;; (primeiro do resto)
+   ((eql (first lista) (first (rest lista)))
+    ;; entao ignora-se o primeiro da lista e continua recursivamente no resto
+    (compress (rest lista)))
+   (t (cons (first lista) (compress (rest lista))))
+   )
+  )
+
+P09 
+  (**) Pack consecutive duplicates of list elements into sublists.
+(defun pack (lista)
+	(if (eql lista nil) 
+		nil
+		(cons (pega lista) (pack (tira lista)))
+	)
+)
+
+(defun pega (lista)
+    (cond ((eql lista nil) nil)
+	  ((eql (cdr lista) nil) lista)
+          ((equal (car lista) (cadr lista))
+              (cons (car lista) (pega (cdr lista))))
+          (t (list (car lista)))
+    )
+)
+
+(defun tira (lista)
+    (cond ((eql lista nil) nil)
+	  ((eql (cdr lista) nil) nil)
+          ((equal (car lista) (cadr lista))
+              (tira (cdr lista)))
+          (t (cdr lista))
+    )
+)
+
+P10 
+  (*) Run-length encoding of a list.
+(defun encode (l &optional (n 1))
+  (cond
+   ((null l)    nil)
+   ((null (cdr l))   (list (list (car l) n)))
+   ((eql (car l) (cadr l))   (encode (cdr l) (1+ n)))
+   (t   (cons (list (car l) n) (encode (cdr l) 1)))))
+
+P11 
+  (*) Modified run-length encoding.
+(defun encode (lista)
+	(if (eql lista nil) 
+		nil
+		(if (= (length (pega lista)) 1 )
+		    (cons (car lista) (encode (tira lista)))
+		    (cons (list (length (pega lista)) (car lista)) (encode (tira lista))))
+	)
+)
+
+(defun pega (lista)
+    (cond ((eql lista nil) nil)
+	  ((eql (cdr lista) nil) lista)
+          ((equal (car lista) (cadr lista))
+              (cons (car lista) (pega (cdr lista))))
+          (t (list (car lista)))
+    )
+)
+
+(defun tira (lista)
+    (cond ((eql lista nil) nil)
+	  ((eql (cdr lista) nil) nil)
+          ((equal (car lista) (cadr lista))
+              (tira (cdr lista)))
+          (t (cdr lista))
+    )
+)
+
+P12 
+  (**) Decode a run-length encoded list.
+(defun decode-modified (code)
+  (if (null code)
+      ()
+    (append (decode-one (car code))
+	    (decode-modified (cdr code)))
+    )
+  )
+
+(defun decode-one (one-code)
+    (if (listp one-code)
+	(repeat (car one-code) (second one-code))
+      (list one-code)
+    )
+)
+
+(defun repeat (n expr)
+    (if (zerop n)
+	()
+      (cons expr (repeat (1- n) expr))
+    )
+)
+
+P13 
+  (**) Run-length encoding of a list (direct solution).
+(defun encode-direct (lista)
+  (if (null lista)
+      ()
+    (add-item (car lista) (encode-direct (cdr lista)))
+    )
+  )
+
+(defun add-item (item code)
+  (if (null code)
+      (list item)
+    (append (add-to-run item (car code))
+	    (cdr code))
+    )
+  )
+
+(defun add-to-run (item run)
+  (if (listp run)
+      (if (equal item (second run))
+	  (list (cons (1+ (car run)) (cdr run)))
+	(list item run))
+    (if (equal item run)
+	(list (list 2 item))
+      (list item run)
+      )
+    )
+  )
+
+P14 
+  (*) Duplicate the elements of a list.
+(defun dupli (lista)
+    (if (eql lista nil)
+        nil
+    (append (list (car lista) (car lista)) ( dupli (cdr lista)))
+    )
+)
+
+(dupli '(1 2 3 4 5 6 7 8))
+P15 
+  (**) Replicate the elements of a list a given number of times.
+(defun dupli (lista int &optional (ini int))
+    (cond ((eql lista nil) nil)
+          ((<= int 0) (dupli (cdr lista) ini ini))
+          (t (cons (car lista) (dupli lista (1- int) ini )))
+    )
+)
+P16 
+  (**) Drop every N'th element from a list.
+(defun drop (lista n)
+  "Drops every N'th element of a list"
+    (dropaux lista n 1)
+)
+
+(defun dropaux (lista n pos)
+  "Drops every N'th element of a list, but looking now at element POS"
+    (cond ((eql lista nil) nil)
+          ((= (mod pos n) 0) (dropaux (cdr lista) n 1))
+          (t (cons (car lista) (dropaux (cdr lista) n (mod (1+ pos) n))))
+    )
+)
+P17 
+  (*) Split a list into two parts; the length of the first
+    part is given.
+;;;  Funcao que recebe uma lista e uma posicao e retorna  ;;;
+;;;  outra lista duas listas: a primeira contendo os      ;;;
+;;;  elementos ate e inclusive a posicao indicada, e a    ;;;
+;;;  segunda contendo o restante.
+
+(defun split (lista pos)
+  (list (split-up-to lista pos) (split-after lista pos))
+  )
+
+;;;  Funcao que pega a primeira parte da LISTA, ate' POS
+;;;  Numeracao de posicoes comeca de 1
+;;;
+;;;  Casos extremos:
+;;;  se POS <= 0, retorna lista vazia
+;;;  se POS > comprimento da lista, retorna a lista inteira
+
+(defun split-up-to (lista pos)
+    (cond
+     ((<= pos 0) ())
+     ((null lista) lista)
+     (t (cons (car lista) (split-up-to (cdr lista) (1- pos))))
+     )
+    )
+
+;;;  Funcao que recebe uma lista e uma posicao e retorna  ;;;
+;;;  outra lista contendo os elementos apos a posicao     ;;;
+;;;  indicada (posicoes numeradas a partir de 1)          ;;;
+;;;
+;;;  Casos extremos:
+;;;  se POS <= 0, retorna a lista inteira
+;;;  se POS > comprimento da lista, retorna lista vazia
+
+(defun split-after (lista pos)
+    (cond
+     ((<= pos 0) lista)
+     ((null lista) ())
+     (t (split-after (cdr lista) (1- pos)))
+     )
+    )
+
+P18 
+  (**) Extract a slice from a list.
+;;;  Funcao que recebe uma lista e duas posicoes I e K e
+;;;  retorna a parte da lista original entre as posicoes
+;;;  I e K, inclusive.  As posicoes comecam de 1.
+;;;
+;;;  Casos extremos:
+;;;  se I <= 0, retorna de 1 a K
+;;;  se K > comprimento da lista, retorna de I ao final
+;;;  se I > K, retorna lista vazia
+;;;
+;;;  Nota: usa funcao como funcao auxiliar a split do
+;;;  problema p17.
+
+(defun slice (lista i k)
+    (cond
+     ((<= i 1) (split-up-to lista k))
+     ((null lista) lista)
+     (t (slice (cdr lista) (1- i) (1- k)))
+     )
+    )
+
+P19 
+  (**) Rotate a list N places to the left.
+;;;  Funcao que recebe uma lista e um inteiro N
+;;;  e retorna a lista rotacionada N posicoes
+;;;  para a esquerda
+
+(defun rotate (lista pos)
+  (if (null lista)
+      ()
+    (let ((pos1 (mod pos (length lista))))
+      (append (split-after lista pos1) (split-up-to lista pos1))
+      )
+    )
+  )
+
+;;;  Funcao que pega a primeira parte da LISTA, ate' POS
+;;;  Numeracao de posicoes comeca de 1
+;;;
+;;;  Casos extremos:
+;;;  se POS <= 0, retorna lista vazia
+;;;  se POS > comprimento da lista, retorna a lista inteira
+
+(defun split-up-to (lista pos)
+    (cond
+     ((<= pos 0) ())
+     ((null lista) lista)
+     (t (cons (car lista) (split-up-to (cdr lista) (1- pos))))
+     )
+    )
+
+;;;  Funcao que recebe uma lista e uma posicao e retorna  ;;;
+;;;  outra lista contendo os elementos apos a posicao     ;;;
+;;;  indicada (posicoes numeradas a partir de 1)          ;;;
+;;;
+;;;  Casos extremos:
+;;;  se POS <= 0, retorna a lista inteira
+;;;  se POS > comprimento da lista, retorna lista vazia
+
+(defun split-after (lista pos)
+    (cond
+     ((<= pos 0) lista)
+     ((null lista) ())
+     (t (split-after (cdr lista) (1- pos)))
+     )
+    )
+(load "p32.lisp")
+
+(defun coprime (n m)
+  (if (= 1 (my-gcd n m))
+      nil
+    t
+    )
+  )
+
+P20 
+  (*) Remove the K'th element from a list.
+;;;  Função que remove o elemento em uma dada posicação da  ;;;
+;;;  lista. Retorna a nova lista sem o elemento em questão  ;;;
+
+(defun remove-at (org-list pos &optional (ini 1))
+    (if (eql pos ini)
+        (cdr org-list)
+        (cons (car org-list) (remove-at (cdr org-list) pos (+ ini 1)))))
+
+P21 
+  (*) Insert an element at a given position into a list.
+;;; Função que recebe um elemento, uma lista e uma posição ;;;
+;;; e retorna uma nova lista que contém o elemento na      ;;;
+;;; desejada. Se a posição pedida é maior que a última da  ;;;
+;;; lista, insere no final da lista.                       ;;;
+
+(defun insert-at (elem org-list pos)
+    (if (or (eql pos 1) (eql org-list nil))
+            (cons elem org-list)
+            (cons (car org-list) (insert-at elem (cdr org-list) (- pos 1)))))
+
+P22 
+  (*) Create a list containing all integers within a given range.
+;;; Função que gera uma lista contendo todos os inteiros em   ;;;
+;;; um dado intervalo. Se o inicio é menor que o final, gera  ;;;
+;;; um lista decrescente                                      ;;;
+
+(defun range (ini fim)
+    (if (> ini fim)
+        ;; Se a lista é de um número maior para um menor ;;
+        (if (eql ini fim)
+            (cons fim nil)
+            (cons ini (range (- ini 1) fim)))
+        
+        ;; Se a lista é de um número menor para um maior ;;
+        (if (eql ini fim)
+            (cons fim nil)
+            (cons ini (range (+ ini 1) fim)))))
+
+P23 
+  (**) Extract a given number of randomly selected elements from a 
+  list.
+(load "p03.lisp")
+(load "p20.lisp")
+
+
+;;;  Função que recebe uma lista de opções e um número de   ;;;
+;;;  elementos a serem sorteados, retornando uma lista com  ;;;
+;;;  os elementos que são sorteados. Se o número de         ;;;
+;;;  elementos pedidos for maior que o número de elementos  ;;;
+;;;  o comportamento é indefinido.                          ;;;
+
+(defun rnd-select (org-list num &optional (selected 0))
+    (if (eql num selected)
+        nil
+        (let ((rand-pos (+ (random (length org-list)) 1)))
+           (cons (element-at org-list rand-pos) (rnd-select (remove-at org-list rand-pos) num (+ selected 1))))))
+
+P24 
+  (*) Lotto: Draw N different random numbers from the set 1..M.
+(load "p22.lisp")
+(load "p23.lisp")
+
+
+;;;  Junta duas outras funções para produzir o resultado desejado  ;;;
+
+(defun lotto-select (num-elem max-elem)
+    (rnd-select (range 1 max-elem) num-elem))
+
+P25 
+  (*) Generate a random permutation of the elements of a list.
+(load "p20.lisp")
+(load "p23.lisp")
+
+;;;  Função que gera uma permutação randômica de uma lista  ;;;
+
+(defun rnd-permu (org-list)
+  (if (null org-list)
+      ()
+    (let ((rand-pos (+ (random (length org-list) 1))))
+      (cons (element-at org-list rand-pos)
+	    (rnd-permu (org-list)))
+
+P26 
+  (**) Generate the combinations of K distinct objects
+      chosen from the N elements of a list
+;;; Function that returns all possible choices of K elements from a
+;;; given list L.  Solution courtesy of Martin Buchmann, with cosmetic
+;;; editions by JM.
+
+(defun combination (k l)
+  (cond
+   ((< k 0) nil)
+   ((= k 0) (list nil))
+   ((> k (length l)) nil)
+   (t (append (mapcar #'(lambda (x) (cons (first l) x))
+		      (combination (1- k) (rest l)))
+	      (combination k (rest l))
+	      )
+      )
+   )
+  )
+
+;;; Alternative solution sent to me by Wojciech Gac on 2014-01-17
+;;; Just indentation editing by JM.
+
+(defun combination (n lst)
+  (cond
+   ((zerop n) nil)
+   ((= n 1) (mapcar #'list lst))
+   (t (mapcan #'(lambda (x)
+		  (mapcar #'(lambda (y) (append (list x) y))
+			  (combination (1- n) (setf lst (delete x lst)))))
+	      lst))
+   )
+  )
+
+P27 
+  (**) Group the elements of a set into disjoint subsets.
+(load "p07.lisp")
+(load "p26.lisp")
+
+
+;;;   Subtrai o conjunto B do conjunto A e eetorna S = A - B   ;;;
+
+(defun remove-lista (orig-list elem-list)
+    (if (eql elem-list nil)
+        orig-list
+        (remove-lista (remove (car elem-list) orig-list) (cdr elem-list))))
+
+
+;;;   Função auxiliar que retorna um conjunto de todas as combinações   ;;;
+;;;   num-elem a num-elem de orig-list que não contenham nenhum dos     ;;;
+;;;   elementos presentes em res-parc.                                  ;;;
+
+(defun group-n (num-elem res-parc orig-list)
+    (combination-lista-elem res-parc (combination num-elem (remove-lista orig-list (flatten res-parc)))))
+
+
+(defun group-n-list (num-elem res-parc-list orig-list)
+    (if (eql res-parc-list nil)
+        nil
+        (let ((res-parc (car res-parc-list)) (resto (cdr res-parc-list)))
+            (append (group-n num-elem res-parc orig-list) (group-n-list num-elem resto orig-list)))))
+
+
+(defun group3 (orig)
+    (group-n-list 5 (group-n-list 2 (group-n 2 nil orig) orig) orig))
+
+
+(defun group (orig-list elem-list)
+    (if (eql (cdr elem-list) nil)
+        (group-n (car elem-list) nil orig-list)
+        (let ((elem-list (reverse elem-list)))
+            (group-n-list (car elem-list) (group orig-list (reverse (cdr elem-list))) orig-list))))
+
+
+
+
+P28 
+  (**) Sorting a list of lists according to length of sublists
+;;;  Retorna uma lista ordenada de acordo com o tamanho das sublistas  ;;;
+(defun lsort (orig-list)
+    (sort orig-list #'> :key #'length))
+
+
+;;;  Retorna uma nova lista, com elementos da forma (N ELEM), onde    ;;;
+;;;  N é a freqüencia do tamanho da lista ELEM e ELEM é uma sublista  ;;;
+;;;  original.                                                        ;;;
+(defun lfmark (rest-list &optional (orig-list rest-list))
+    (if (eql rest-list nil)
+        nil
+        (cons (list (lfreq orig-list (length (car rest-list))) (car rest-list)) (lfmark (cdr rest-list) orig-list))))
+
+
+;;;  Recebe uma lista com elementos da forma (CHAVE ELEM) e retoran uma nova   ;;;
+;;;  lista sem as chaves ELEM                                                  ;;;
+(defun lfunmark (orig-list)
+    (if (eql orig-list nil)
+        nil
+        (cons (second (car orig-list)) (lfunmark (cdr orig-list)))))
+
+
+;;;  Conta o número de listas com tamanho e-length na orig-list  ;;;
+(defun lfreq (orig-list e-length)
+    (if (eql orig-list nil)
+        0
+        (if (eql (length (car orig-list)) e-length)
+            (+ (lfreq (cdr orig-list) e-length) 1)
+            (lfreq (cdr orig-list) e-length))))
+
+
+;;;  Retorna uma lista ordenada pela freqüencia de suas sublistas  ;;;
+(defun lfsort (orig-list)
+    (let ((marked-list (lfmark orig-list)))
+        (lfunmark (sort marked-list #'> :key #'(lambda (x) (car x))))))
+
+
+P31 
+  (**) Determine whether a given integer number is prime.
+;;;  Determina se um numero eh primo
+(defun is-prime (n)
+  (and
+   (> n 1)
+   (null (proper-divisors n))
+   )
+  )
+
+;;;  Retorna uma lista com os divisores proprios de N
+;;;  Divisores proprios: sao os divisores diferentes de 1 e N
+(defun proper-divisors (n)
+  (proper-divisors-up-to n (floor n 2))
+  )
+
+;;;  Retorna uma lista com os divisores proprios de N
+;;;  que nao excedam M
+(defun proper-divisors-up-to (n m)
+  (cond
+   ((<= m 1) ())
+   ((= 0 (mod n m)) (cons m (proper-divisors-up-to n (1- m))))
+   (t (proper-divisors-up-to n (1- m)))
+   )
+  )
+
+P32 
+  (**) Determine the greatest common divisor of two positive integer
+       numbers.
+;;;  Retorna o maximo divisor comum
+(defun my-gcd (m n)
+  (if (= n 0)
+      m
+    (my-gcd n (mod m n))
+    )
+  )
+
+P33 
+  (*) Determine whether two positive integer numbers are coprime.
+(load "p32.lisp")
+
+(defun coprime (n m)
+  (if (= 1 (my-gcd n m))
+      t
+    nil
+    )
+  )
+
+P34 
+  (**) Calculate Euler's totient function phi(m).
+;;; Euler's totient function phi(m) is defined as the number
+;;; of positive integers r (1 <= r <= m) that are coprime to m.
+
+(defun phi (m)
+  (if (< 0 m)
+      (phi-aux 1 m)
+    'undef
+    )
+  )
+
+;;;  Function phi-aux(k,m) is defined as the number
+;;; of positive integers r (k <= r < m) that are coprime to m.
+
+(defun phi-aux (k m)
+  (if (<= k m)
+      (+ (phi-aux (1+ k) m)
+	 (if (coprime k m) 1 0)
+	 )
+    0
+    )
+  )
+
+P35 
+  (**) Determine the prime factors of a given positive integer.
+(defun prime-factors (n)
+  (if (< 0 n)
+      (factors-above 1 n)
+    ()
+    )
+  )
+
+(defun factors-above (k n)
+  (if (< n k)
+      ()
+    (let ((l (factors-equal-to (+ 1 k) n)))
+      (append l (factors-above (1+ k) (/ n (apply '* l))))
+      )
+    )
+  )
+
+(defun factors-equal-to (k n)
+  (if (= 0 (mod n k))
+      (cons k (factors-equal-to k (/ n k)))
+    ()
+    )
+  )
+
+P36 
+  (**) Determine the prime factors of a given positive integer (2).
+(defun prime-factors (n)
+  (if (< 0 n)
+      (factors-above2 1 n)
+    ()
+    )
+  )
+
+(defun factors-above2 (k n)
+  (if (< n k)
+      ()
+    (let ((l (factors-equal-to2 (+ 1 k) n)))
+      (if (= 0 (cadr l))
+	  (factors-above2 (1+ k) (/ n (apply 'expt l))))
+      (cons l (factors-above2 (1+ k) (/ n (apply 'expt l))))
+      )
+    )
+  )
+
+(defun factors-equal-to2 (k n)
+  (if (= 0 (mod n k))
+      (list k (factors-equal-to2 k (/ n k)))
+    (list k 0)
+    )
+  )
+
+P37 
+  (**) Calculate Euler's totient function phi(m) (improved).
+(load "p36.lisp")
+
+(defun phi2 (n)
+  (phi-list (prime-factors-mult n))
+  )
+
+(defun phi-list (lista)
+  (if (null lista)
+      1
+    (* (1- (caar lista)) (expt (caar lista) (1- (cadar lista)))
+       (phi-list (cdr lista))
+       )
+    )
+  )
+
+P38 
+  (*) Compare the two methods of calculating Euler's totient function.
+P39 
+  (*) A list of prime numbers.
+;;;  Determina os primos entre K e N
+(defun primes-between (k n)
+  (if (or (< n 1) (< n k))
+      ()
+    (remove-smaller k (primes-up-to n))
+    )
+  )
+
+;;; Remove menores que K de uma LISTA
+(defun remove-smaller (k lista)
+  (remove-if #'(lambda (x) (< x k)) lista)
+  )
+
+;;;  Retorna a lista com os primos ate' N
+;;;  em ordem crescente
+
+(defun primes-up-to (n)
+  (primes-up-to-aux () 2 n)
+  )
+
+;;;  Funcao auxiliar acumuladora para o calculo
+;;;  dos primos ate' N.
+;;;  L e' a lista parcial de primos ja' obtidos
+;;;  Deseja-se complementar L com os primos entre
+;;;  K e N
+
+(defun primes-up-to-aux (l k n)
+  (cond
+   ((> k n) l)
+   ((any-divides l k) (primes-up-to-aux l (1+ k) n))
+   (t (primes-up-to-aux (append l (list k)) (1+ k) n))
+   )
+  )
+
+;;; Predicate.  True when some integer from the list
+;;; LISTA divides K
+
+(defun any-divides (lista k)
+  (some #'(lambda (x) (= 0 (mod k x))) lista)
+  )
+
+P40 
+  (**) Goldbach's conjecture.
+(load "p39.lisp")
+
+;;;  Determina primos x e y cuja some sjea N
+(defun goldbach (n)
+  (if (oddp n)
+      'none
+    (terms-sum n (primes-up-to n))
+    )
+  )
+
+;;; Retorna dois numeros da LISTA cuja soma e' K, se houver.
+;;; Nota: a lista esta' em ordem crescente
+
+(defun terms-sum (k lista)
+  (cond
+   ((null lista) nil)
+   ((member (- k (car lista)) lista)
+    (list (car lista) (- k (car lista))))
+   (t (terms-sum k (cdr lista)))
+   )
+  )
+
+P41 
+  (**) A list of Goldbach compositions.
+(load "p40.lisp")
+(load "p22.lisp")
+
+;;;  Imprime os termos de Goldbach para pares entre K e N
+(defun goldbach-list (k n &optional (lower-bound 1))
+  (mapcar #'(lambda (p)
+	      (format t "~D = ~D + ~D~%" 
+		      (+ (first p) (second p)) (first p) (second p)))
+	  (goldbach-between k n lower-bound)
+	  )
+  'end
+  )
+
+;;; Determina os termos de Goldbach para pares entre K e N
+(defun goldbach-between (k n &optional (lower-bound 1))
+  (cond
+   ((or (<= n 1) (< n k))  ())
+   (t (goldbach-between-aux k n lower-bound))
+   )
+  )
+
+;;; Funcao auxiliar de goldbach-between
+(defun goldbach-between-aux (k n &optional (lower-bound 1))
+  (remove-if #'(lambda (p) (< (car p) lower-bound))
+	     (remove 'none (mapcar #'goldbach (range k n))))
+  )
+
+P46 
+   (**) Truth tables for logical expressions.
+;;;  Define as funcoes logicas que nao estao no clisp:
+;;;  impl e equ
+
+(defun impl (a b)
+  (or a (not b))
+  )
+
+(defun equ (a b)
+  (not (xor a b))
+  )
+
+;;; Agora table, que constroi tabela de funcoes booleanas
+;;; os parametros A e A sao as variaveis, e E e' a expressao booleana
+
+(defun table (a b e)
+  (dolist (va (list t nil))
+	  (dolist (vb (list t nil))
+		  (format t "~S ~S ~S~%"
+			  va vb
+			  (eval (subst va a (subst vb b e)))
+			  )
+		  )
+	  )
+  )
+
+P47 
+   (*) Truth tables for logical expressions (2).
+;;;  Define as funcoes logicas que nao estao no clisp:
+;;;  impl e equ
+
+(defun impl (a b)
+  (or a (not b))
+  )
+
+(defun equ (a b)
+  (not (xor a b))
+  )
+
+;;; Agora table, que constroi tabela de funcoes booleanas
+;;; os parametros A e A sao as variaveis, e E e' a expressao booleana
+;;; Esta aqui e' para expressoes infixas.
+
+(defun table-in (a b e)
+  (dolist (va (list t nil))
+	  (dolist (vb (list t nil))
+		  (format t "~S ~S ~S~%"
+			  va vb
+			  (bool-infix-eval a va b vb e)
+			  )
+		  )
+	  )
+  )
+
+;;; Esta funcao avalia uma expressao infixa E em A e B
+;;; dando-lhes valores VA e VB
+
+(defun bool-infix-eval (a va b vb e)
+  (cond
+   ((eql e a) va)
+   ((eql e b) vb)
+   ((not (consp e)) 'invalida)
+   ((eql (car e) 'not) (not (bool-infix-eval a va b vb (cadr e))))
+   ((eql (cadr e) 'and) (and (bool-infix-eval a va b vb (car e))
+			     (bool-infix-eval a va b vb (caddr e))
+			     ))
+   ((eql (cadr e) 'or) (or (bool-infix-eval a va b vb (car e))
+			   (bool-infix-eval a va b vb (caddr e))
+			   ))
+   ((eql (cadr e) 'xor) (xor (bool-infix-eval a va b vb (car e))
+			     (bool-infix-eval a va b vb (caddr e))
+			     ))
+   ((eql (cadr e) 'impl) (impl (bool-infix-eval a va b vb (car e))
+			       (bool-infix-eval a va b vb (caddr e))
+			       ))
+   ((eql (cadr e) 'equ) (equ (bool-infix-eval a va b vb (car e))
+			     (bool-infix-eval a va b vb (caddr e))
+			     ))
+   (t 'invalida)
+   )
+  )
+
+
+P48 
+   (**) Truth tables for logical expressions (3).
+(defun table (vars expr)
+  (print (table0 () vars expr))
+  (print-table (table0 () vars expr))
+  )
+
+(defun print-table (l)
+  (dolist (line l)
+    (dolist (v (car line))
+      (format t "~S " v)
+      )
+    (format t "~S~%" (cadr line))
+    )
+  )
+
+(defun table0 (prefix vars expr)
+  "Print table with every line preceeded with prefix"
+  (if (null vars)
+      (list (list (reverse prefix) (bool-infix-eval expr)))
+    (append (table0 (cons t   prefix) (cdr vars) (subst t   (car vars) expr))
+	  (table0 (cons nil prefix) (cdr vars) (subst nil (car vars) expr))
+	  )
+    )
+  )
+
+;;; Esta funcao avalia uma expressao infixa E
+;;; com conectivos not, and or, xor, impl, equ e
+;;; constantes t e nil
+
+(defun bool-infix-eval (e)
+  (cond
+   ((eql e nil) nil)
+   ((eql e t) t)
+   ((not (consp e)) 'invalida)
+   ((eql (first e) 'not) (not (bool-infix-eval (second e))))
+   ((eql (second e) 'and) (and (bool-infix-eval (first e))
+			       (bool-infix-eval (third e))
+			       ))
+   ((eql (second e) 'or) (or (bool-infix-eval (first e))
+			     (bool-infix-eval (third e))
+			     ))
+   ((eql (second e) 'xor) (xor (bool-infix-eval (first e))
+			       (bool-infix-eval (third e))
+			       ))
+   ((eql (second e) 'impl) (impl (bool-infix-eval (first e))
+				 (bool-infix-eval (third e))
+				 ))
+   ((eql (second e) 'equ) (equ (bool-infix-eval (first e))
+			       (bool-infix-eval (third e))
+			       ))
+   (t 'invalida)
+   )
+  )
+
+P49 
+   (**) Gray code.
+;;; Gray code
+;;; Make it with lists first, then make string from list
+;;; Way of making it: for n = 0 it is the empty list
+;;; For larger n, add 0 to code for n-1, and add 1 to reverse
+
+(defun gray (n)
+  (mapcar #'list-to-string (gray-list n))
+  )
+
+(defun list-to-string (lista)
+  (let ((a (make-string (length lista) :initial-element #\0)))
+    (dotimes (i (length lista) a)
+      (setf (aref a i) (elt lista i))
+      )
+    )
+  )
+
+(defun gray-list (n)
+  (if (= n 0)
+      '(())
+    (let ((prev (gray-list (1- n))))
+      (append (add #\0 prev)
+	      (add #\1 (reverse prev))
+	      )
+      )
+    )
+  )
+
+;;;  Adding a digit to a previous code word
+
+(defun add (digit word)
+  (mapcar #'(lambda (x) (cons digit x)) word)
+  )
+
+P50 
+   (***) Huffman code.
+(load "p49.lisp")
+
+(defun huffman (f)
+  (huf-codes (huf-tree (huf-encode f)))
+  )
+
+(defun huf-encode (f)
+  (mapcar #'huf-enc-car f)
+  )
+
+(defun huf-enc-car (p)
+  (list (first p) (second p) nil nil)
+  )
+
+(defun huf-tree (l)
+  (cond
+   ((null l) ())
+   ((null (cdr l)) (car l))
+   (t (let* ((a (huf-min l))
+	     (l1 (remove a l))
+	     (b (huf-min l1))
+	     (l2 (remove b l1)))
+	(huf-tree (cons (list nil (+ (second a) (second b)) a b) l2))
+	))
+   )
+  )
+
+(defun huf-min (hl)
+  (if (null (cdr hl))
+      (car hl)
+    (let ((a (car hl))
+	  (b (huf-min (cdr hl))))
+      (if (<= (second a) (second b))
+	  a
+	b
+	)
+      )
+    )
+  )
+
+(defun huf-codes (ht)
+  (if (null ht)
+      ()
+    (huf-codes-prefix () ht)
+    )
+  )
+
+(defun huf-codes-prefix (prefix ht)
+  (if (null (third ht))
+      (list (list (first ht) (list-to-string (reverse prefix))))
+    (append (huf-codes-prefix (cons #\0 prefix) (third ht))
+	    (huf-codes-prefix (cons #\1 prefix) (fourth ht))
+	    )
+    )
+  )
+
+P54A 
+   (*) Check whether a given expression represents a binary tree
+;;; P54A: Write a predicate istree which reurns t if and only if its argument
+;;;      is an S-expression representing a binary tree.
+;;;
+
+(defun istree (tree)
+  (if (null tree)
+      t
+    (and (listp tree)
+	 (= 3 (length tree))
+	 (istree (second tree))
+	 (istree (third tree))
+	 )
+    )
+  )
+
+P55 
+   (**) Construct completely balanced binary trees
+;;; cbal-tree(n): list version
+;;; returns a list with all completely balanced binary trees with a
+;;; given number of nodes.
+;;;
+;;; Note: it seems possible to improve the performance using
+;;; dynamic programming
+
+(defun cbal-tree (n)
+  (cond
+   ((= n 0) (list ()))
+   ((oddp n)
+    (append (cart-process (cbal-tree (/ (1- n) 2))
+			  (cbal-tree (/ (1- n) 2))
+			  )
+	    ))
+   ((evenp n)
+    (append (cart-process (cbal-tree (/ (- n 2) 2))
+			  (cbal-tree (/ n 2))
+			  )
+	    (cart-process (cbal-tree (/ n 2))
+			  (cbal-tree (/ (- n 2) 2))
+			  )
+	    ))
+   )
+  )
+
+(defun cart-process (l1 l2)
+  (process (cart-product l1 l2))
+  )
+
+(defun process (lista)
+  (mapcar #'(lambda (x) (cons 'x x)) lista)
+  )
+
+(defun cart-product (l1 l2)
+  (let ((a nil))
+    (dolist (t1 l1 a)
+      (setf a (append (mapcar #'(lambda (x) (list t1 x)) l2) a))
+      )
+    )
+  )
+
+;;; cbal-tree: print version
+;;; call list version and then print each element
+
+(defun cbal-tree-print (n)
+  (dolist (tree (cbal-tree n))
+    (print tree)
+    )
+  )
+
+P56 
+   (**) Symmetric binary trees
+;;; symmetric tree
+;;; predicate, returns t when the right subtree is the mirror image of
+;;; the left subtree (ignoring content)
+
+(defun symmetric (tree)
+  (or (null tree)
+      (equal-structure (second tree) (revert (third tree)))
+      )
+  )
+
+(defun revert (tree)
+  (if (null tree)
+      ()
+    (list (first tree) (revert (third tree)) (revert (second tree)))
+    )
+  )
+
+(defun equal-structure (t1 t2)
+  (cond
+   ((null t1) (null t2))
+   ((null t2) nil)
+   (t (and (equal-structure (second t1) (second t2))
+	   (equal-structure (third  t1) (third  t2))
+	   )
+      )
+   )
+  )
+
+P57 
+   (**) Binary search trees (dictionaries)
+(defun construct (lista)
+  (let ((tree nil))
+    (dolist (item lista tree)
+      (setf tree (bst-add item tree))
+      )
+    )
+  )
+
+(defun bst-add (item tree)
+  (cond
+   ((null tree) (list item nil nil))
+   ((< item (first tree)) (list (first tree)
+				(bst-add item (second tree))
+				(third tree)))
+   ((> item (first tree)) (list (first tree)
+				(second tree)
+				(bst-add item (third tree))))
+   ;; elemento ja' existe na arvore:
+   ;; nao coloca repetido, joga ele fora
+   (t tree)
+   )
+  )
+
+P58 
+   (**) Generate-and-test paradigm
+(load "p55.lisp")
+(load "p56.lisp")
+
+(defun sym-cbal-trees-print (n)
+  (dolist (tree (cbal-tree n))
+    (if (symmetric tree)
+	(print tree)
+      nil
+      )
+    )
+  )
+
+P59 
+   (**) Construct height-balanced binary trees
+;;; hbal-tree(n): list version
+;;; returns a list with all completely balanced binary trees with a
+;;; given height.
+;;;
+
+(defun hbal-tree (h)
+  (cond
+   ((<= h -2) ())
+   ((= h -1) '(()) )
+   (t (append (cart-process (hbal-tree (- h 2))
+			    (hbal-tree (- h 1))
+			    )
+	      (cart-process (hbal-tree (- h 1))
+			    (hbal-tree (- h 1))
+			    )
+	      (cart-process (hbal-tree (- h 1))
+			    (hbal-tree (- h 2))
+			    )
+	      ))
+   )
+  )
+
+(defun cart-process (l1 l2)
+  (process (cart-product l1 l2))
+  )
+
+(defun process (lista)
+  (mapcar #'(lambda (x) (cons 'x x)) lista)
+  )
+
+(defun cart-product (l1 l2)
+  (let ((a nil))
+    (dolist (t1 l1 a)
+      (setf a (append (mapcar #'(lambda (x) (list t1 x)) l2) a))
+      )
+    )
+  )
+
+;;; hbal-tree: print version
+;;; call list version and then print each element
+
+(defun hbal-tree-print (h)
+  (dolist (tree (hbal-tree h))
+    (print tree)
+    )
+  )
+
+P60 
+   (**) Construct height-balanced binary trees with a given number of nodes
+(defun min-nodes (h)
+  (cond
+   ((= h -1) 0)
+   ((= h  0) 1)
+   (t (+ 1 (min-nodes (- h 1)) (min-nodes (- h 2))))
+   )
+  )
+
+(defun max-height (n)
+  (max-height-aux -1 0 1 n)
+  )
+
+(defun max-height-aux (h fh fh1 n)
+  (if (< n fh1)
+      h
+    (max-height-aux (1+ h) fh1 (+ 1 fh fh1) n)
+    )
+  )
+
+;;; hbal-tree-nodes(n): list version
+;;; returns a list with all completely balanced binary trees with a
+;;; given number of nodes.
+;;;
+;;; Brute-force approach, using an auxiliary procedure which computes
+;;; a list of all such trees with a given height.
+;;;
+;;; Note: it is possible to improve the performance using
+;;; dynamic programming.  See function hbal-tree-nodes-dp
+
+(load "p59.lisp")
+
+(defun hbal-tree-nodes (n)
+  (hbal-tree-nodes-dp n)
+  )
+
+(defun hbal-tree-nodes-bf (n)
+  (let ((result nil))
+    (dotimes (h (1+ (max-height n)) result)
+      (setf result (append (hbal-tree-aux n h) result))
+      )
+    )
+  )
+
+(defun hbal-tree-aux (n h)
+  (if (= n 0)
+      (if (= h -1) '(()) '())
+    (let ((a nil))
+      (dotimes (i n a)
+	(setf a (append (cart-process (hbal-tree-aux i         (- h 2))
+				      (hbal-tree-aux (- n i 1) (- h 1))
+				      )
+			(cart-process (hbal-tree-aux i         (- h 1))
+				      (hbal-tree-aux (- n i 1) (- h 1))
+				      )
+			(cart-process (hbal-tree-aux i         (- h 1))
+				      (hbal-tree-aux (- n i 1) (- h 2))
+				      )
+			a))
+	)
+      )
+    )
+  )
+
+;;; Faster, dynamic programming implementation
+
+(defun hbal-tree-nodes-dp (n)
+  (let ((a (hbal-table n (max-height n)))
+	(result nil))
+    (dotimes (h (1+ (max-height n)) result)
+      (setf result (append (list-of-hbal-trees n h a) result))
+      )
+    )
+  )
+
+(defun hbal-table (n h)
+  (let ((a (make-array (list (1+ n) (1+ h)) :initial-element nil)))
+    (dotimes (ni (1+ n) a)
+      (dotimes (hi (1+ h))
+	(let ((b nil))
+	  (dotimes (i ni b)
+	    (setf b (append
+		     (cart-process (list-of-hbal-trees i          (- hi 2) a)
+				   (list-of-hbal-trees (- ni i 1) (- hi 1) a)
+				   )
+		     (cart-process (list-of-hbal-trees i          (- hi 1) a)
+				   (list-of-hbal-trees (- ni i 1) (- hi 1) a)
+				   )
+		     (cart-process (list-of-hbal-trees i          (- hi 1) a)
+				   (list-of-hbal-trees (- ni i 1) (- hi 2) a)
+				   )
+		     b))
+	    )
+	  (setf (aref a ni hi) b)
+	  )
+	)
+      )
+    )
+  )
+	  
+(defun list-of-hbal-trees (n h a)
+  (cond
+   ((= h -2) nil)
+   ((= h -1) (if (= n 0) '(()) nil))
+   (t (aref a n h))
+   )
+  )
+
+;;; hbal-tree-nodes: print version
+;;; call list version and then print each element
+
+(defun hbal-tree-nodes-print (n)
+  (dolist (tree (hbal-tree n))
+    (print tree)
+    )
+  )
+
+P61 
+   (*) Count the leaves of a binary tree
+(defun count-leaves (tree)
+  (cond
+   ((null tree) 0)
+   ((and (null (second tree)) (null (third tree))) 1)
+   (t (+ (count-leaves (second tree)) (count-leaves (third tree))))
+   )
+  )
+
+P61A 
+   (*) Collect the leaves of a binary tree in a list
+(defun leaves (tree)
+  (cond
+   ((null tree) ())
+   ((and (null (second tree)) (null (third tree))) (list tree))
+   (t (append (leaves (second tree)) (leaves (third tree))))
+   )
+  )
+
+P62 
+   (*) Collect the internal nodes of a binary tree in a list
+(defun internals (tree)
+  (cond
+   ((null tree) ())
+   ((and (null (second tree)) (null (third tree))) ())
+   (t (cons tree (append (internals (second tree)) (internals (third tree)))))
+   )
+  )
+
+P62B 
+   (*) Collect the nodes at a given level in a list
+(defun atlevel (tree level)
+  (cond
+   ((null tree) ())
+   ((= level 1) (list tree))
+   (t (append (atlevel (second tree) (1- level))
+	      (atlevel (third tree)  (1- level))))
+   )
+  )
+
+P63 
+   (**) Construct a complete binary tree
+;;; This is a hard problem.  One way to think about it: you need an
+;;; auxiliary functions for constructing cbt with arbitrary start
+;;; label at root.  Then you need to know the number of nodes in left
+;;; and right subtrees.
+;;; A table for that comes handy:
+;;; N  / left size / p
+;;;  1 / 0 / 
+;;;  2 / 1 / 1
+;;;  3 / 1 / 1
+;;;  4 / 2 / 2
+;;;  5 / 3 / 2
+;;;  6 / 3 / 2
+;;;  7 / 3 / 2
+;;;  8 / 4 / 4
+;;;  9 / 5 / 4
+;;; 10 / 6 / 4
+;;; 11 / 7 / 4
+;;; 12 / 7 / 4
+;;; 13 / 7 / 4
+;;; 14 / 7 / 4
+;;; 15 / 7 / 4
+;;; 16 / 8 / 8
+;;;
+;;; Ok, except for the base N = 1, one can see that the left size
+;;; depends essentially on the 2 higher-order bits (HOB) of N: if
+;;; these two higer-order bits are "10", then left size keeps growing
+;;; form a power of 2 by 1 unit; if the HOB are "11", then left size
+;;; is constant, equal t the last value from the "10" series.
+;;; 
+;;; These two HOB are just N div p, where p is the value in the third
+;;; colimn; and what needs to be added to form the left size in the
+;;; "10" case is p + lower order bits, which is p + N mod p.  In the
+;;; "11" case, this just gets to be p + (p-1).
+;;;
+;;; The starting label for subtrees is just 2k and 2k+1, if k is the
+;;; starting label for the tree.
+
+(defun complete-binary-tree (n)
+  (cbt-label n 1)
+  )
+
+;;; cbt-label: complete binary tree with given label k at root;
+;;; notice we also need an extra base case for n = 0.
+
+(defun cbt-label (n k)
+  (cond
+   ((= n 0) nil)
+   ((= n 1) (list k nil nil))
+   (t (let* ((p (floor (highest-2-power n) 2))
+	     (left (if (= 2 (floor n p))
+		       (+ p (mod n p))
+		     (+ p (1- p)))))
+	(list k
+	      (cbt-label left (* 2 k))
+	      (cbt-label (- n 1 left) (+ 1 (* 2 k)))
+	      )))
+   )
+  )
+
+;;; highest-2-poer: that is less that or equal to n
+
+(defun highest-2-power (n)
+  (if (<= n 1)
+      1
+    (* 2 (highest-2-power (floor n 2)))
+    )
+  )
+
+P64 
+   (**) Layout a binary tree (1)
+(defun layout-binary-tree (tree)
+  (if (null tree)
+      nil
+    (let ((lsize (size (second tree))))
+      (list
+       (first tree)
+       (1+ lsize)
+       1
+       (add-to-y-coord
+	1
+	(layout-binary-tree (second tree))
+	)
+       (add-to-y-coord
+	1
+	(add-to-x-coord (1+ lsize) (layout-binary-tree (third tree)))
+	)
+       )
+      )
+    )
+  )
+
+(defun size (tree)
+  (if (null tree)
+      0
+    (+ 1 (size (second tree)) (size (third tree)))
+    )
+  )
+
+(defun add-to-x-coord (k tree)
+  (if (null tree)
+      nil
+    (list
+     (first tree)
+     (+ k (second tree))
+     (third tree)
+     (add-to-x-coord k (fourth tree))
+     (add-to-x-coord k (fifth tree))
+     )
+    )
+  )
+
+(defun add-to-y-coord (k tree)
+  (if (null tree)
+      nil
+    (list
+     (first tree)
+     (second tree)
+     (+ k (third tree))
+     (add-to-y-coord k (fourth tree))
+     (add-to-y-coord k (fifth tree))
+     )
+    )
+  )
+
+(setf tt '(n (k (c (a nil nil) (h (g (e nil nil) nil) nil)) (m nil nil)) (u (p nil (s (q nil nil) nil)) nil)))
+
+P65 
+   (**) Layout a binary tree (2)
+(defun layout-aux (a x y tree)
+  (if (null tree)
+      ()
+    (list (first tree)
+	  x
+	  y
+	  (layout-aux (/ a 2) (- x (/ a 2)) (1+ y) (second tree))
+	  (layout-aux (/ a 2) (+ x (/ a 2)) (1+ y) (third tree))
+	  )
+    )
+  )
+
+(defun layout-binary-tree (tree)
+  (multiple-value-bind (a x)
+		       (initial-params tree)
+		       (layout-aux a x 1 tree)
+		       )
+  )
+
+(defun initial-params (tree)
+  (if (null tree)
+      (values 1/2 0)
+    (multiple-value-bind (al xl)
+			  (initial-params (second tree))
+			  (multiple-value-bind (ar xr)
+					       (initial-params (third tree))
+					       (let ((a (* 2 (max al ar))))
+						 (values
+						  a
+						  (if (= xl 0)
+						    1
+						    (+ xl (/ a 2))
+						   )
+						  )
+						 )
+					       )
+			  )
+    )
+  )
+
+P66
+   (***) Layout a binary tree (3)
+P67
+   (**) A string representation of binary trees
+(defun string-rep (tree)
+  (cond
+   ((null tree) "")
+   ((and (null (second tree)) (null (third tree)))
+    (symbol-name (first tree)))
+   (t (concatenate 'string
+		   (symbol-name (first tree))
+		   "("
+		   (string-rep (second tree))
+		   ","
+		   (string-rep (third tree))
+		   ")"
+		   )
+      )
+   )
+  )
+
+P68
+   (**) Preorder and inorder sequences of binary trees
+P69
+   (**) Dotstring representation of binary trees
+P70B 
+   (*) Check whether a given expression represents a multiway tree
+(defun istree (expr)
+  (or
+   (atom expr)
+   (and
+    (listp expr)
+    (>= (length expr) 2)
+    (atom (car expr))
+    (alltree (cdr expr))
+    )
+   )
+  )
+
+(defun alltree (lista)
+  (or
+   (null lista)
+   (and (istree (car lista)) (alltree (cdr lista)))
+   )
+  )
+
+P70C 
+   (*) Count the nodes of a multiway tree
+P70 
+   (**) Tree construction from a node string
+P71 
+   (*) Determine the internal path length of a tree
+;;; Solucao baseada na seguinte formula:
+;;; ipl(v) = 0, se v e' folha
+;;; ipl(v) = sum {v -> u} [ ipl(u) + size(u) ],
+;;; onde size(x) e' o tamanho (em numero de nos) da subarvore que tem
+;;; x como raiz.  Para size, a recorrencia e':
+;;; size(v) = 1, se v e' folha
+;;; size(v) = 1 + sum {v -> u} size(u)
+;;; Para implementar estas formulas, decidimos fazer com que ipl(v)
+;;; retortnasse dois valores: o ipl e o tamanho (size), usando o
+;;; recurso de multiplos valores de Lisp.
+
+(defun ipl (tree)
+  (if (leaf tree)
+      (values 0 1)
+    (let ((sumipls 0)
+	  (sumsizes 0))
+      (dolist (child (children tree)
+		     (values (+ sumipls sumsizes) (1+ sumsizes)))
+	(multiple-value-bind
+	 (cipl csize)
+	 (ipl child)
+	 (setf sumipls (+ sumipls cipl))
+	 (setf sumsizes (+ sumsizes csize))
+	 )
+	)
+      )
+    )
+  )
+
+(defun leaf (tree)
+  (atom tree)
+  )
+
+(defun children (tree)
+  (rest tree)
+  )
+
+P72 
+   (*) Construct the bottom-up order sequence of the tree nodes
+P73 
+   (**) Prolog-like tree representation
+(defun tree-ptl (tree)
+  (cond
+   ((null tree) ())
+   ((atom tree) (list t "(" tree "," "[" "]" ")"))
+   (t (append (list t "(" (first tree) "," "[")
+	      (ptl-list (children tree))
+	      (list "]" ")")
+	      )
+      )
+   )
+  )
+
+(defun children (tree)
+  (rest tree)
+  )
+
+(defun ptl-list (children)
+  (cond
+   ((null children) ())
+   ((null (rest children)) (tree-ptl (first children)))
+   (t (append (tree-ptl (first children))
+	      (list ",")
+	      (ptl-list (rest children))
+	      ))
+   )
+  )
+
+P80 
+   (***) Conversions
+(defun ge-to-al (graph)
+  (mapcar #'(lambda (x) (list x (adj-list graph x))) (car graph))
+  )
+
+(defun adj-list (graph node)
+  (apply #'append (mapcar #'(lambda (x) (neighbor x node)) (second graph)))
+  )
+
+(defun neighbor (pair node)
+  (cond
+   ((eql node (first pair)) (list (second pair)))
+   ((eql node (second pair)) (list (first pair)))
+   (t ())
+   )
+  )
+
+P81 
+   (**) Path from one node to another one
+;;; Paths from one node to another
+;;; uses adjacency-list form
+
+(defun path (g a b)
+  (path-using g a b (all-nodes g))
+  )
+
+(defun path-using (g a b available)
+  (if (equal a b)
+      (list (list a))
+    (let ((path-list nil))
+      (dolist (n (adj-list g a) (addto a path-list))
+	(if (member n available)
+	    (setf path-list 
+		  (append (path-using g n b (remove a available)) path-list)
+		  )
+	  )
+	)
+      )
+    )
+  )
+
+(defun adj-list (g a)
+  (second (assoc a g))
+  )
+
+(defun addto (a paths)
+  (mapcar #'(lambda (x) (cons a x)) paths)
+  )
+
+(defun all-nodes (g)
+  (mapcar #'car g)
+  )
+
+P82 
+   (*) Cycle from a given node
+;;; Depende se o ciclo e' orientado ou nao
+;;; Em ambos os casos, creio que nao se deve
+;;; repetir arestas nem vertices intermediarios
+
+(defun cycle (g a)
+  "It depends on whether we are given a directed or undirected graph.
+Moreover, I think that directed cycles must have at least one edge, and
+undirected ones must have at least three edges.  In both cases, I think
+one should not repeat intermediate vertices."
+  )
+
+P83 
+   (**) Construct all spanning trees
+P84 
+   (**) Construct a minimum spanning tree
+;;; MST by Prim
+;;; Uses hashtable for the heap of 'bids'
+;;; Takes graphs in adjacency list form
+
+(defun ms-tree (graph)
+  (mst-aux graph
+	   nil
+	   (update graph
+		   (first (first graph))
+		   (make-hash-table)
+		   ()
+		   )
+	   )
+  )
+
+(defun mst-aux (graph tree bids)
+  (if (= (hash-table-count bids) 0)
+      tree
+      (let* ((new (best graph bids))
+	     (prior (first (gethash new bids))))
+	(mst-aux graph
+		 (cons (list new prior) tree)
+		 (update graph new bids (cons new (cons prior (nodes tree))))
+		 )
+	)
+      )
+  )
+
+(defun update (graph node bids processed)
+  (remhash node bids)
+  (dolist (pair (neighbors node graph) bids)
+    (let ((n (first pair))
+	  (weight (weight pair)))
+      (if (and
+	   (not (member n processed))
+	   (or (not (gethash n bids))
+	       (< weight (second (gethash n bids))))
+	   )
+	  (setf (gethash n bids) (list node weight))
+	)
+      )
+    )
+  )
+
+(defun neighbors (node graph)
+  (second (first (member-if #'(lambda (x) (eql node (car x))) graph)))
+  )
+
+(defun best (graph bids)
+  (minweight (mapcar #'car graph) bids)
+  )
+
+(defun minweight (nodes bids)
+  (minweight-aux (cdr nodes) bids (car nodes))
+  )
+
+(defun minweight-aux (nodes bids a)
+  (if (null nodes)
+      a
+    (minweight-aux (cdr nodes)
+		   bids
+		   (if (better (weight (gethash a bids))
+			  (weight (gethash (car nodes) bids))
+			  )
+		       a
+		     (car nodes)
+		     )
+		   )
+    )
+  )
+
+(defun weight (x)
+  (second x)
+  )
+
+(defun better (x y)
+  "Compares X to Y, which can be real numbers or NIL.  BETTER means
+smaller, or, if any is NIL, then the other is better.  If both are nil
+it does not matter: return anything"
+  (if (null x)
+      nil
+    (if (null y)
+	t
+      (<= x y)
+      )
+    )
+  )
+
+(defun nodes (tree)
+  (apply #'append tree)
+  )
+
+P85 
+   (**) Graph isomorphism
+P86 
+   (**) Node degree and graph coloration
+;;; Node degrees
+;;; uses adjacency-list form
+
+(load "p84.lisp")
+
+(defun degree (graph node)
+  (length (neighbors node graph))
+  )
+
+P87 
+   (**) Depth-first order graph traversal  
+   (alternative solution)
+;;; DFS
+;;; Takes graphs in adjacency list form
+;;; maintain as state:
+;;; the graph,
+;;; the traversal so far (in reverse order, for easy augmentation)
+;;; the stack of lists of neighbors to see
+;;; the current list of neighbors-to-see
+;;;
+;;; Using the abbreviation: neighbors-to-see = nts
+
+(load "p84.lisp")
+
+(defun dfs (graph node)
+  (dfs-aux graph (list node) nil (neighbors node graph))
+  )
+
+(defun dfs-aux (graph traversal stack nts)
+  (cond
+   ;; case 1: next neighbor to see has already been visited
+   ((and nts (member (car nts) traversal))
+    ;; just disregard this neighbor
+    (dfs-aux graph traversal stack (cdr nts)))
+   ;; case 2: next neighbor to see not yet visited
+   (nts
+    ;; pushd remaining list of neighbors to see, start a new one
+    (dfs-aux graph 
+	     (cons (car nts) traversal)
+	     (cons (cdr nts) stack)
+	     (neighbors (car nts) graph)))
+   ;; case 3: no more neighbors to see, but stack not empty
+   (stack
+    ;; pop a list of neighbors to see from stack
+    (dfs-aux graph traversal (cdr stack) (car stack)))
+   ;; case 4: no more neighbors to see, empty stack
+   (t
+    ;; return traversal; remember it is built reversed
+    (reverse traversal))
+   )
+  )
+
+P88 
+   (**) Connected components
+    (alternative solution)
+;;; Connected Components
+;;; uses adjacency-list form
+;;; uses dfs
+
+(load "p87.lisp")
+
+(defun components (graph)
+  (comp-aux graph nil nil (nodes graph))
+  )
+
+(defun comp-aux (graph comps ja-foi a-tentar)
+  "Finds the remaining connected components of a GRAPH, given
+   the already known components in a list COMPS, a list of
+   nodes already reached in JA-FOI, and nodes to still try in
+   A-TENTAR"
+  (cond
+   ((null a-tentar) comps)
+   ((member (car a-tentar) ja-foi)
+    (comp-aux graph comps ja-foi (cdr a-tentar)))
+   (t (let ((comp (dfs graph (car a-tentar))))
+	(comp-aux graph (cons comp comps) (append comp ja-foi) (cdr a-tentar))
+	))
+   )
+  )
+
+(defun nodes (graph)
+  (mapcar #'car graph)
+  )
+
+P89 
+   (**) Bipartite graphs
+P90 
+   (**) Eight queens problem
+;;; Eight Queens
+;;; generate and test
+;;; generate part: generates all permutations in sorted order
+
+;;; next permutation in lexicographic order
+
+(defun next (perm)
+  "Returns the next permutation after PERM in lexicographic order.
+   If this is the last one, returns NIL.
+   The lenght of PERM must be at least 1."
+  (let ((triple (partition perm)))
+    (if (null triple)
+	nil
+      (let* ((a (first triple))		; the first part
+	     (p (second triple))		; the pivot
+	     (b (third triple))		; the second part
+	     (pair (locate p a))	; returns a dotted pair
+	     (newp (first pair))
+	     (newa (rest pair)))
+	(append newa (cons newp b))
+	)
+      )
+    )
+  )
+
+(defun partition (perm)
+  "Partitions the permutation PERM into a maximal increasing prefix (MIP),
+   a pivot (element right after the MIP), and the rest of the permutation.
+   If there is no pivot, returns NIL, signalling the end of the series."
+  (partaux () perm)
+  )
+
+(defun partaux (head tail)
+  (cond
+   ((null (cdr tail)) nil)
+   ((> (first tail) (second tail))
+    (list (cons (first tail) head) (second tail) (cddr tail)))
+   (t (partaux (cons (first tail) head) (rest tail)))
+   )
+  )
+
+(defun locate (p a)
+  (locaux p () a)
+  )
+
+(defun locaux (p rhead tail)
+  (if (or (null (cdr tail))
+	  (> p (second tail)))
+      (cons (first tail) (apprev rhead (cons p (cdr tail))))
+    (locaux p (cons (car tail) rhead) (cdr tail))
+    )
+  )
+
+(defun apprev (a b)
+  (if (null a)
+      b
+    (apprev (cdr a) (cons (car a ) b))
+    )
+  )
+
+(defun good (perm)
+  "Predicate that returns T when PERM is a solution of the queens problem."
+  (and (diff (plus-diags perm))
+       (diff (minus-diags perm))
+       )
+  )
+
+(defun diff (lista)
+  "Returns T when all elements of LISTA are distinct."
+  (if (< (length lista) 2)
+      t
+    (and (not (member (car lista) (cdr lista)))
+	 (diff (cdr lista)))
+    )
+  )
+
+(defun plus-diags (perm)
+  (op-aux #'+ (length perm) perm)
+  )
+
+(defun minus-diags (perm)
+  (op-aux #'- (length perm) perm)
+  )
+
+(defun op-aux (op n lista)
+  (if (null lista)
+      ()
+    (cons (funcall op n (car lista)) (op-aux op (1- n) (cdr lista)))
+    )
+  )
+
+(do ((j '(8 7 6 5 4 3 2 1) (next j))) ((not j)) (when (good j) (print j)))
+
+P91 
+   (**) Knight's tour
+;;; Knight's Tour
+;;; uses function jump n x y, which gives a list of
+;;; valid positions from x y in an nxn board
+
+(setf jumps '
+      ((+1 +2)
+       (-1 +2)
+       (-1 -2)
+       (+1 -2)
+       (+2 +1)
+       (-2 +1)
+       (-2 -1)
+       (+2 -1))
+      )       
+
+(defun jump (n pair)
+  "Returns the list of valid positions a knight's jump away from
+   (X, Y) in an NxN board."
+  (filter n
+	  (mapcar #'(lambda (x) (mapcar #'+ pair x)) jumps)
+	  )
+  )
+
+(defun filter (n lista)
+  (if (null lista)
+      ()
+    (if (inside n (car lista))
+	(cons (car lista) (filter n (cdr lista)))
+      (filter n (cdr lista))
+      )
+    )
+  )
+
+(defun inside (n pair)
+  (and (>= (car pair) 1)
+       (<= (car pair) n)
+       (>= (second pair) 1)
+       (<= (second pair) n)
+       )
+  )
+
+;;; now main function; it is based on dfs (see p87.lisp)
+
+(defun knight (n)
+  (one-longer n (* n n) () 0 (all-squares n))
+  )
+
+(defun one-longer (n nsqr ptour len nts)
+  (cond
+   ;; no more to see: failed
+   ((null nts)
+    nil)
+   ;; next to see already a member: disregard it
+   ((member (car nts) ptour :test #'equal)
+    (one-longer n nsqr ptour len (cdr nts)))
+   ;; next to see not a member: if there is a tour with this prefix, return it, otherwise try cdr
+   (t (let ((tour (tour-with-prefix n nsqr (cons (car nts) ptour) (1+ len))))
+	(if tour
+	    tour
+	  (one-longer n nsqr ptour len (cdr nts))
+	  )))
+   )
+  )
+
+(defun tour-with-prefix (n nsqr ptour len)
+  (if (= len nsqr)
+      ptour
+    (one-longer n nsqr ptour len (jump n (car ptour)))
+    )
+  )
+
+(defun all-squares (n)
+  (if (= n 1)
+      (last-line 1 1)
+    (append (all-squares (1- n))
+	    (last-line n n)
+	    (last-col n (1- n))
+	    )
+    )
+  )
+
+(defun last-line (n k)
+  (if (= k 1)
+      (list (list 1 n))
+    (cons (list k n) (last-line n (1- k)))
+    )
+  )
+
+(defun last-col (n k)
+  (if (= k 1)
+      (list (list n 1))
+    (cons (list n k) (last-col n (1- k)))
+    )
+  )
+
+P92 
+   (***) Von Koch's conjecture
+;;; Graceful Labeling (Von Koch's conjecture)
+;;; like a dfs, but assinging and verifying labels
+;;; takes a tree in graph-expression form
+
+(load "p80.lisp")
+(load "p87.lisp")
+
+(defun graceful-labeling (tree)
+  "Returns a graceful label for TREE if one exists.  Node labels
+   go from 1 to length of TREE; edge labels go from 1 to one less
+   than length of TREE."
+  (let* ((lista (ordered-edges tree))
+	 (n (nnodes tree))
+	 (seq (seq 1 n)))
+    ;; quem tem label e' sempre o segundo do par
+    (tenta-node (cadar lista) lista nil seq (seq 1 (1- n)) seq)
+    )
+  )
+
+(defun tenta-node (node lista atrib node-labels edge-labels a-tentar)
+  "Retorna uma atribuicao que completa ATRIB, com rotulos novos
+   tirados de NODE-LABELS para nos, e EDGE-LABELS para arestas,
+   sendo que o rotulo de NODE tem que ser um dos rotulos em A-TENTAR,
+   caso exista; se nao existir, retorna NIL.
+   LISTA eh a lista das arestas que falta rotular."
+  (if (null a-tentar)
+      nil
+    (or (estende lista
+		 (acons node (car a-tentar) atrib)
+		 (remove (car a-tentar) node-labels)
+		 edge-labels
+		 )
+	(tenta-node node lista atrib node-labels edge-labels (cdr a-tentar))
+	)
+    )
+  )
+
+(defun estende (lista atrib node-labels edge-labels)
+  "Retorna uma atribuicao que completa ATRIB, com rotulos novos
+   tirados de NODE-LABELS para nos, e EDGE-LABELS para arestas,
+   se houver; caso contrÃ¡rio, retorna NIL.
+   LISTA eh a lista das arestas que falta rotular."
+  (if (null lista)
+      atrib
+    (tenta (car lista)
+	   (cdr lista)
+	   atrib
+	   node-labels
+	   edge-labels
+	   node-labels)
+    )
+  )
+
+(defun tenta (pair lista atrib node-labels edge-labels a-tentar)
+  "Retorna uma atribuicao que completa ATRIB, com rotulos novos
+   tirados de NODE-LABELS para nos, e EDGE-LABELS para arestas,
+   sendo que PAIR eh a proxima aresta a tentar, e sabe-se que o
+   segundo elemento de PAIR jah tem rotulo, enquanto que rotulo
+   do primeiro elemento de PAIR tem que ser um dos rotulos em A-TENTAR.
+   se nao existir tal atrbuicao, retorna NIL.
+   LISTA eh a lista das arestas que falta rotular, alem de PAIR."
+  (if (null a-tentar)
+      nil
+    (let* ((a (second pair))		; jah tem rotulo
+	   (b (first pair))		; nao tem rotulo
+	   (d (abs (- (car a-tentar) (cdr (assoc a atrib)))))
+	   )
+      (or (and (member d edge-labels)
+	       (estende lista
+			(acons b (car a-tentar) atrib)
+			(remove (car a-tentar) node-labels)
+			(remove d edge-labels)
+			)
+	       )
+	  (tenta pair lista atrib node-labels edge-labels (cdr a-tentar))
+	  )
+      )
+    )
+  )
+
+(defun ordered-edges (tree)
+  "Retorna a lista de arestas da arvore TREE ordenadas de tal forma que,
+   a partir da segunda aresta da lista, cada aresta tem exatamente um
+   elemento que ja' apareceu antes, e exatamente um que nao apareceu antes.
+   DFS pode ser usada para obter tal lista."
+  (let ((dfs (dfs (ge-to-al tree) (caar tree))))
+    (cdr
+     (mapcar #'(lambda (x) (list x (my-first-neighbor x tree dfs)))
+	     dfs))
+    )
+  )
+
+(defun my-first-neighbor (node tree order)
+  "Returns first TREE-neighbor of NODE in ORDER, or nil if none exists."
+  (if (null order)
+      nil
+    (if (adjacent (car order) node tree)
+	(car order)
+      (my-first-neighbor node tree (cdr order))
+      )
+    )
+  )
+
+(defun adjacent (a b tree)
+  (or (member (list a b) (second tree) :test #'equal)
+      (member (list b a) (second tree) :test #'equal)
+      )
+  )
+
+(defun nnodes (tree)
+  (length (car tree))
+  )
+
+(defun seq (a b)
+  (if (< b a)
+      nil
+    (cons a (seq (1+ a) b))
+    )
+  )
+
+P93 
+   (***) An arithmetic puzzle
+;;; Generate and test paradigm
+;;; Generates all possible expressions
+;;; then chooses one that is valid and returns it
+;;; or nil if none exists
+
+(load "p17.lisp")			; for split
+
+(defun valid-expr (lista)
+  (if (< (length lista) 2)
+      nil
+    (one-valid (bool-exprs-up-to (1- (length lista)) lista))
+    )
+  )
+
+(defun one-valid (lista)
+  (if (null lista)
+      nil
+    (if (eval (car lista))
+	(car lista)
+      (one-valid (cdr lista))
+      )
+    )
+  )
+
+(defun bool-exprs-up-to (k lista)
+  (if (< k 1)
+      nil
+    (append (bool-exprs-up-to (1- k) lista)
+	    (bool-exprs-with k lista)
+	    )
+    )
+  )
+
+(defun bool-exprs-with (k lista)
+  (let* ((pair (split lista k))
+	 (a (first pair))
+	 (b (second pair))
+	 )
+    (put-one '=
+	     (cartesian (arith-exprs a)
+			(arith-exprs b)
+			)
+	     )
+    )
+  )
+
+(defun put-one (symb lista)
+  (mapcar #'(lambda (x) (cons symb x)) lista)
+  )
+
+(defun cartesian (la lb)
+  (if (null la)
+      nil
+    (append (cart-one (car la) lb)
+	    (cartesian (cdr la) lb)
+	    )
+    )
+  )
+
+(defun cart-one (a lb)
+  (if (null lb)
+      nil
+    (cons (list a (car lb))
+	  (cart-one a (cdr lb))
+	  )
+    )
+  )
+
+(defun arith-exprs (lista)
+  (if (null (cdr lista))
+      (list (car lista) (cons '- lista))
+    (arith-exprs-up-to (1- (length lista)) lista)
+    )
+  )
+
+(defun arith-exprs-up-to (k lista)
+  (if (< k 1)
+      nil
+    (append (arith-exprs-up-to (1- k) lista)
+	    (arith-exprs-with k lista)
+	    )
+    )
+  )
+
+(defun arith-exprs-with (k lista)
+  (let* ((pair (split lista k))
+	 (a (first pair))
+	 (b (second pair))
+	 )
+    (put '(+ * /)
+	 (cartesian (arith-exprs a)
+		    (arith-exprs b)
+		    )
+	 )
+    )
+  )
+
+(defun put (symbs lista)
+  (if (null symbs)
+      nil
+    (append (put-one (car symbs) lista)
+	    (put (cdr symbs) lista)
+	    )
+    )
+  )
+
+P94 
+   (***) Generate K-regular simple graphs with N nodes
+P95 
+   (**) English number words
+;;; English number words
+;;; Returns nil if n < 0.
+
+(defun full-words (n)
+  (cond
+   ((< n 0) nil)
+   ((< n 10) (digit-word n))
+   (t (concatenate 'string
+		   (full-words (floor n 10))
+		   "-"
+		   (digit-word (mod n 10))
+		   )
+      )
+   )
+  )
+
+(defun digit-word (n)
+  (elt '("zero" "one" "two" "three" "four" "five" "six" "seven"
+	 "eight" "nine") n)
+  )
+
+P96 
+   (**) Syntax checker 
+   (alternative solution with difference lists)
+;;; Grammar used:
+;;; 
+;;; id --> letter, rest
+;;;
+;;; rest --> ""
+;;; rest --> dash, char, rest
+;;;
+;;; dash --> ""
+;;; dash --> "-"
+;;;
+;;; char --> letter
+;;; char --> digit
+;;; 
+;;; 'letter' and 'digit' nonterminals are implemented by
+;;; Lisp predicates alpha-char-p and digit-char-p, respectively.
+
+(defun identifier (str)
+  (id str ())
+  )
+
+(defun id (str stack)
+  "True when STR has a prefix that is an identifier and the rest
+   of STR can be parsewd sucessfully with the predicates in STACK."
+  (check str (cons #'letra (cons #'resto stack)))
+  )
+
+(defun check (str stack)
+  (if (null stack)
+      (string= str "")
+    (funcall (car stack) str (cdr stack))
+    )
+  )
+
+(defun letra (str stack)
+  (and
+   (> (length str) 0)
+   (alpha-char-p (elt str 0))
+   (check (subseq str 1) stack)
+   )
+  )
+
+(defun digito (str stack)
+  (and
+   (> (length str) 0)
+   (digit-char-p (elt str 0))
+   (check (subseq str 1) stack)
+   )
+  )
+
+(defun resto (str stack)
+  (or
+   (check str stack)
+   (check str (cons #'traco (cons #'carac (cons #'resto stack))))
+   )
+  )
+
+(defun traco (str stack)
+  (or
+   (check str stack)
+   (and
+    (> (length str) 0)
+    (string= (elt str 0) "-")
+    (check (subseq str 1) stack)
+    )
+   )
+  )
+
+(defun carac (str stack)
+  (or
+   (letra str stack)
+   (digito str stack)
+   )
+  )
+
+P97 
+  (**) Sudoku 
+P98 
+   (***) Nonograms
+P99 
+   (***) Crossword puzzle
+;;; A ideia aqui e' representar o problema como um grafo G = (V,E),
+;;; onde V e' o conjunto dos sites e E sao os sites que se tocam.
+;;;
+;;; O grafo seria orientado, sempre contendo pares de arestas opostas
+;;; e representado como listas de adjacencia.
+;;;
+;;; Asscoiados a cada vertice (site) temos: seu comprimento e as
+;;; posicoes ja' com caracteres definidos;  as demais posicoes
+;;; estariam livres.
+;;;
+;;; Associados a cada aresta teriamos: a posicao no site 1 e a posicao
+;;; no site 2; posicoes comecam, de zero.
+;;;
+;;; Basicamente, a solucao usa uma busca em largura no grafo, com
+;;; backtrack.  A cada visita num vertice, todas as palavras do
+;;; tamanho certo e que coincidem com os caracteres ja' definidos sao
+;;; tentadas, na ordem da lista de palavras da entrada.
+;;;
+;;; Ha' tambem uma parte complementar da leitura, onde sao montados o
+;;; grafo e um hash de palavras por tamanho.
+

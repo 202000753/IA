@@ -92,9 +92,10 @@
 
 ;; alisa
 ;;(alisa '(1 2 3 (3 4) (4 5) )) ;teste alisa
-(defun alisa (lista)
+(defun alisa (l)
   (cond
-   ((atom lista) nil)
-   (T (apply 'append (list lista) (mapcar 'alisa lista)))
+   ((null l) nil)
+   ((atom l) (list l))
+   (T (apply 'append (mapcar 'alisa l)))
   )
 )

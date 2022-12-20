@@ -105,16 +105,12 @@
 (defun avaliar-turma(lista &optional func)
   (cond
    ((null func) (percentagem-aprovados lista))
-   (t (funcall func lista))
+   (t (apply func lista))
   )
 )
 
 ;; existep
 ;; (existep "Joao" "Silva" (turma-1)
 ;; T
-(defun existep(nome apelido turma)
-  (cond 
-   ((find t (mapcar (lambda (n a) (cond((and (equal n nome) (equal a apelido)) t) (t nil))) (mapcar #'nome turma) (mapcar #'apelido turma))) t)
-   (t nil)
-  )
-)
+
+
