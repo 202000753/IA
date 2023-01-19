@@ -28,6 +28,14 @@
    )
 )
 
+;; (tabuleiro-de-jogo)
+(defun tabuleiro-de-jogo ()
+  '(
+    ((0 0 0 0 0 0) (0 0 0 0 0 0) (0 0 0 0 0 0) (0 0 0 0 0 0) (0 0 0 0 0 0) (0 0 0 0 0 0))
+    ((0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0))
+   )
+)
+
 ;; (get-arcos-horizontais (tabuleiro-teste))
 (defun get-arcos-horizontais (estado)
   (first estado)

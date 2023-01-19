@@ -6,35 +6,61 @@
 ;; iniciar
 (defun iniciar ()
 "Permite iniciar o programa"
-  ;(progn
-  ;  (format t "Dots and Boxes~%")
-  ;  (format t "Escolha uma opção~%")
-  ;  (format t "0- Sair~%")
-  ;  (format t "1- Novo Jogo~%")
-  ;  (format t "2- Jogar Nivéis Do Ficheiro~%")
-  ;  (let ((resposta (read)))
-  ;    (cond 
-  ;     ((and (equal (equal resposta 0) nil) (equal (equal resposta 1) nil) (equal (equal resposta 2) nil)) (progn (format t "Opção Invalida ~%") (iniciar)))
-  ;     (t (cond
-  ;             ((= resposta 0) (format t "A terminar...~%"))
-  ;             ((= resposta 1) (novo-jogo))
-  ;             (t (escolher-nivel))
-  ;         )
-  ;     )
-  ;    )
-  ;  )
-  ;)
-  (escolher-nivel)
+  (progn
+    (format t "Dots and Boxes~%")
+    (format t "Escolha uma opção~%")
+    (format t "0- Sair~%")
+    (format t "1- 2ª fase (Humano vs Computador ou Computador vs Computador)~%")
+    (format t "2- 1ª fase (Resolução de problemas)~%")
+    (let ((resposta (read)))
+      (cond 
+       ((and (equal (equal resposta 0) nil) (equal (equal resposta 1) nil) (equal (equal resposta 2) nil)) (progn (format t "Opção Invalida ~%") (iniciar)))
+       (t (cond
+               ((= resposta 0) (format t "A terminar...~%"))
+               ((= resposta 1) (novo-jogo))
+               (t (escolher-nivel))
+           )
+       )
+      )
+    )
+  )
 )
 
 ;; novo-jogo
 (defun novo-jogo ()
-"Permite iniciar um novo jogo"
-  '(
-    ((0 0 0) (0 0 0) (0 0 0) (0 0 0))
-    ((0 0 0) (0 0 0) (0 0 0) (0 0 0))
-   )
+"Permite escolher o modo de jogo"
+  (progn
+    (format t "Modos~%")
+    (format t "Escolha uma opção~%")
+    (format t "0- Sair~%")
+    (format t "1- Humano vs Computador~%")
+    (format t "2- Computador vs Computador~%")
+    (let ((resposta (read)))
+      (cond 
+       ((and (equal (equal resposta 0) nil) (equal (equal resposta 1) nil) (equal (equal resposta 2) nil)) (progn (format t "Opção Invalida ~%") (novo-jogo)))
+       (t (cond
+               ((= resposta 0) (format t "A voltar...~%"))
+               ((= resposta 1) (humano-vs-computador (tabuleiro-de-jogo)))
+               (t (computador-vs-computador (tabuleiro-de-jogo)))
+           )
+       )
+      )
+    )
+  )
 )
+
+;; humano-vs-computador
+(defun humano-vs-computador (tabuleiro)
+"Permite jogar o modo humano vs computador"
+  (format t "~A~%" tabuleiro)
+)
+
+;; computador-vs-computador
+(defun computador-vs-computador (tabuleiro)
+"Permite jogar o modo computador vs computador"
+  (format t "~A~%" tabuleiro)  
+)
+
 
 ;; escolher-nivel
 (defun escolher-nivel ()
@@ -55,7 +81,7 @@
           )
         (cond 
          ((and (equal (equal resposta 0) nil) (eq (operacao-valida opcoes resposta) nil)) (progn (format t "Opção Invalida ~%") (escolher-nivel)))
-         ((equal resposta 0) (format t "A terminar...~%") nil)
+         ((equal resposta 0) (format t "A voltar...~%") nil)
          (t (escolher-algoritmo (escolher-tabuleiro problemas resposta)))
         )
       )

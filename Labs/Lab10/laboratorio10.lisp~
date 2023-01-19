@@ -87,15 +87,7 @@
 ;;;;
 ;;;; Funcoes para o jogo
 ;;; ----------------------------------
-(defun jogada-humano (tabuleiro jogador)
-  (let*
-      (
-       (linha ())
-       (coluna ())
-      )
-    (colocar-peca linha coluna tabuleiro jogador)
-  )
-)
+
 
 
 ;;;;
