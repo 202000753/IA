@@ -1,0 +1,183 @@
+;;;; jogo.lisp
+;;;; Interação com o utilizador e, escrita e leitura de ficheiros
+;;;; Autores: Nuno Reis, Vitor Nunes
+
+(defvar *jogador* 1)
+(defvar *computador* 2)
+
+;;; Inicializaçãoo do programa
+;; iniciar
+(defun iniciar ()
+  (progn
+    (format t "Modos~%")
+    (format t "Escolha uma opção~%")
+    (format t "0- Sair~%")
+    (format t "1- Humano vs Computador~%")
+    (format t "2- Computador vs Computador~%")
+    (let ((resposta (read)))
+      (cond 
+       ((and (equal (equal resposta 0) nil) (equal (equal resposta 1) nil) (equal (equal resposta 2) nil)) (progn (format t "Opção Invalida ~%") (iniciar)))
+       (t (cond
+               ((= resposta 0) (format t "A voltar...~%"))
+               ((= resposta 1) (humano-vs-computador))
+               (t (let*
+                       (
+                        (jogador (jogador-a-iniciar))
+                        (profundidade (escolher-profundidade))
+                        )
+                     (computador-vs-computador jogador (tabuleiro-de-jogo) profundidade)))
+           )
+       )
+      )
+    )
+  )
+)
+
+;; humano-vs-computador
+(defun humano-vs-computador ()
+  (let*
+      (
+       (jogador (jogador-a-iniciar))
+       (profundidade (escolher-profundidade))
+      )
+     (jogar-humano-vs-computador jogador (tabuleiro-de-jogo) profundidade)
+  )
+)
+
+;; jogador-a-iniciar
+(defun jogador-a-iniciar ()
+  (progn
+    (format t "~%Qual o jogador a iniciar o jogo~%")
+    (format t "Escolha uma opção~%")
+    (format t "0- Sair~%")
+    (format t "1- Humano~%")
+    (format t "2- Computador~%")
+    (let ((resposta (read)))
+      (cond 
+       ((and (equal (equal resposta 0) nil) (equal (equal resposta 1) nil) (equal (equal resposta 2) nil)) (progn (format t "Opção Invalida ~%") (jogador-a-iniciar)))
+       (t (cond
+               ((= resposta 0) (format t "A voltar...~%"))
+               ((= resposta 1) *jogador*)
+               (t *computador*)
+           )
+       )
+      )
+    )
+  )
+)
+;;escolher-profundidade
+(defun escolher-profundidade ()
+  (progn
+    (format t "~%Qual a profundidade limite?~%")
+    (let 
+        (
+         (resposta (read))
+        )
+      (cond 
+       ((<= resposta 0) (progn (format t "Opção Invalida ~%") (escolher-profundidade)))
+       (T resposta)
+      )
+    )
+  )
+)
+
+(defun jogar-humano-vs-computador (jogador tabuleiro profundidade)
+  (let
+      (
+       (novo-tabuleiro (cond
+                        ((equal (tabuleiro-preenchidop tabuleiro) t) nil)
+                        ((= jogador *computador*) (jogada-computador tabuleiro profundidade))
+                        ((= jogador *jogador*) (jogada-humano tabuleiro))
+                       )
+       )
+      )
+    (cond
+     ((equal novo-tabuleiro nil) (format t "~%~%Invalido~%") (format t "Tabuleiro: ~a" tabuleiro) (jogar-humano-vs-computador jogador tabuleiro profundidade))
+     ((equal (tabuleiro-preenchidop novo-tabuleiro) t) (format t "Tabuleiro: ~a" tabuleiro) (format t "Acabou"))
+     ((= jogador *computador*) (format t "Tabuleiro: ~a" tabuleiro) (jogar-humano-vs-computador *jogador* novo-tabuleiro profundidade))
+     ((= jogador *jogador*) (format t "Tabuleiro: ~a" tabuleiro) (jogar-humano-vs-computador *computador* novo-tabuleiro profundidade))
+    )
+  )
+)
+
+(defun jogada-humano (tabuleiro)
+  (let*
+      (
+       (operacao (ler-operacao))
+       (linha (cond
+                ((equal operacao "horizontal") (ler-valor-menor 'linha (list-length (get-arcos-horizontais tabuleiro))))
+                (t (ler-valor-menor 'linha (list-length (get-arcos-verticais tabuleiro))))
+              )
+       )
+       (coluna (cond
+                ((equal operacao "horizontal") (ler-valor-menor 'coluna (list-length (nth linha (get-arcos-horizontais tabuleiro)))))
+                (t (ler-valor-menor 'coluna (list-length (nth linha (get-arcos-verticais tabuleiro)))))
+              )
+       )
+      )
+    (cond
+     ((and (equal operacao "horizontal") (= (get-arco-na-posicao linha coluna (get-arcos-horizontais tabuleiro)) 0)) (list (arco-na-posicao linha coluna (get-arcos-horizontais tabuleiro) *jogador*) (get-arcos-verticais tabuleiro)))
+     ((and (equal operacao "vertical") (= (get-arco-na-posicao linha coluna (get-arcos-verticais tabuleiro)) 0)) (list (get-arcos-horizontais tabuleiro) (arco-na-posicao linha coluna (get-arcos-verticais tabuleiro) *jogador*)))
+     (t (format t "~a ~a ~a~%" operacao linha coluna) nil)
+    )
+  )
+)
+
+;; (ler-operacao)
+(defun ler-operacao ()
+  (progn
+    (format t "~%Operações~%")
+    (format t "Escolha uma opção~%")
+    (format t "0- Sair~%")
+    (format t "1- Arco Horizontal~%")
+    (format t "2- Arco Vertical~%")
+    (let ((resposta (read)))
+      (cond 
+       ((and (equal (equal resposta 0) nil) (equal (equal resposta 1) nil) (equal (equal resposta 2) nil)) (progn (format t "Opção Invalida ~%") (ler-operacao)))
+       (t (cond
+               ((= resposta 0) (format t "A voltar...~%"))
+               ((= resposta 1) "horizontal")
+               (t "vertical")
+           )
+       )
+      )
+    )
+  )
+)
+
+
+;; (ler-valor-menor)
+(defun ler-valor-menor (texto valor)
+  (progn
+    (format t "~%Insira o valor de ~a (maior que 0 e menor que ~a)" texto valor)
+    (let ((resposta (read)))
+      (cond 
+       ((or (< resposta 0) (> resposta valor)) (progn (format t "Opção Invalida ~%") (ler-valor-menor texto valor)))
+       (t resposta)
+      )
+    )
+  )
+)
+
+(defun jogada-computador (tabuleiro profundidade)
+  (second (alfabeta (list (list tabuleiro (list 4 8)) 0 4 nil) profundidade))
+)
+
+(defun computador-vs-computador (jogador tabuleiro profundidade)
+  (let
+      (
+       (novo-tabuleiro (cond
+                        ((equal (tabuleiro-preenchidop tabuleiro) t) nil)
+                        ((= jogador *computador*) (jogada-computador tabuleiro profundidade))
+                        ((= jogador *jogador*) (jogada-computador tabuleiro profundidade))
+                       )
+       )
+      )
+    (format t "Tabuleiro: ~a" tabuleiro)
+    (cond
+     ((equal (tabuleiro-preenchidop novo-tabuleiro) t) (format t "Acabou"))
+     ((= jogador *computador*) (jogar-humano-vs-computador *jogador* novo-tabuleiro profundidade))
+     ((= jogador *jogador*) (jogar-humano-vs-computador *computador* novo-tabuleiro profundidade))
+    )
+  )
+)

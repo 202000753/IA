@@ -2,37 +2,26 @@
 ;;;; Operações do problema
 ;;;; Autores: Nuno Reis, Vitor Nunes
 
-;;10 caixas fechadas
-;(problema-d)
-(defun problema-d ()
-  (list
-   '((0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0))
-   '((0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0))
-  )
-)
-
-;;35 caixas fechadas
-;(problema-f)
-(defun problema-f ()
-  (list
-   '((0 0 0 0 0 0 0) (0 0 0 0 0 0 0) (0 0 0 0 0 0 0) (0 0 0 0 0 0 0) (0 1 0 0 0 0 0) (0 1 0 0 0 0 0) (0 0 0 0 0 0 0) (0 0 0 0 0 0 0))
-   '((0 0 0 0 0 0 0) (0 0 0 0 1 0 0) (0 0 0 0 0 0 0) (0 0 0 0 0 0 0) (0 0 0 0 0 0 0) (0 0 0 0 0 0 0) (0 0 0 0 0 0 0) (0 0 0 0 0 0 0))
-  )
-)
-
-;; (tabuleiro-teste)
-(defun tabuleiro-teste ()
-  '(
-    ((0 0 0) (0 0 1) (0 1 1) (0 0 1))
-    ((0 0 0) (0 1 0) (0 0 1) (0 1 1))
-   )
-)
-
 ;; (tabuleiro-de-jogo)
 (defun tabuleiro-de-jogo ()
-  '(
-    ((0 0 0 0 0 0) (0 0 0 0 0 0) (0 0 0 0 0 0) (0 0 0 0 0 0) (0 0 0 0 0 0) (0 0 0 0 0 0))
-    ((0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0))
+  '( 
+    (
+     (1 2 1 1 0 2) 
+     (2 1 1 1 1 0) 
+     (0 2 1 1 2 0) 
+     (0 1 0 2 2 0) 
+     (1 2 0 0 0 0) 
+     (0 1 2 1 2 1)
+     ) 
+    (
+     (1 0 1 0 0) 
+     (2 1 1 2 2) 
+     (2 1 1 2 0) 
+     (1 2 2 1 1) 
+     (1 2 2 0 0) 
+     (0 1 2 1 2) 
+     (2 2 1 2 0) 
+     )
    )
 )
 
@@ -78,7 +67,7 @@
 ;; (arco-horizontal 3 1 (tabuleiro-teste))
 ;; (arco-horizontal 3 2 (tabuleiro-teste))
 ;; (arco-horizontal 7 2 (tabuleiro-teste))
-(defun arco-horizontal (n m tabuleiro)
+(defun arco-horizontal (n m tabuleiro valor)
   (cond
    ((null tabuleiro) nil)
    (t (let*
@@ -87,8 +76,8 @@
          ((null arcos) nil)
          ((> n (list-length arcos)) nil)
          ((> m (list-length (nth (1- n) arcos))) nil)
-         ((= (get-arco-na-posicao n m (get-arcos-horizontais tabuleiro)) 1) nil)
-         (t (list (arco-na-posicao n m arcos) (get-arcos-verticais tabuleiro)))
+         ((/= (get-arco-na-posicao n m (get-arcos-horizontais tabuleiro)) 0) nil)
+         (t (list (arco-na-posicao n m arcos valor) (get-arcos-verticais tabuleiro)))
         )
       )
     )
@@ -98,7 +87,7 @@
 ;; (arco-vertical 1 2 (tabuleiro-teste))
 ;; (arco-vertical 2 2 (tabuleiro-teste))
 ;; (arco-vertical 5 5 (tabuleiro-teste))
-(defun arco-vertical (n m tabuleiro)
+(defun arco-vertical (n m tabuleiro valor)
   (cond
    ((null tabuleiro) nil)
    (t (let*
@@ -107,8 +96,8 @@
          ((null arcos) nil)
          ((> n (list-length arcos)) nil)
          ((> m (list-length (nth (1- n) arcos))) nil)
-         ((= (get-arco-na-posicao n m (get-arcos-verticais tabuleiro)) 1) nil)
-         (t (list (get-arcos-horizontais tabuleiro) (arco-na-posicao n m arcos)))
+         ((/= (get-arco-na-posicao n m (get-arcos-verticais tabuleiro)) 0) nil)
+         (t (list (get-arcos-horizontais tabuleiro) (arco-na-posicao n m arcos valor)))
         )
       )
     )
@@ -119,13 +108,13 @@
 (defun n-caixas-fechadas (horizontais verticais n-horizontais n-verticais &optional (nh 1) (nv 1) (n 0))
   (cond
    ((and (= nh n-horizontais) (= nv n-verticais)) (cond  
-                                                   ((and (= (get-arco-na-posicao nh nv horizontais) 1) (= (get-arco-na-posicao (1+ nh) nv horizontais) 1) (= (get-arco-na-posicao nv nh verticais) 1) (= (get-arco-na-posicao (1+ nv) nh verticais) 1)) 1)
+                                                   ((and (/= (get-arco-na-posicao nh nv horizontais) 0) (/= (get-arco-na-posicao (1+ nh) nv horizontais) 0) (/= (get-arco-na-posicao nv nh verticais) 0) (/= (get-arco-na-posicao (1+ nv) nh verticais) 0)) 1)
                                                    (t 0)
                                                    ))
    (t
     (+ n 
        (cond
-        ((and (= (get-arco-na-posicao nh nv horizontais) 1) (= (get-arco-na-posicao (1+ nh) nv horizontais) 1) (= (get-arco-na-posicao nv nh verticais) 1) (= (get-arco-na-posicao (1+ nv) nh verticais) 1)) 1)
+        ((and (/= (get-arco-na-posicao nh nv horizontais) 0) (/= (get-arco-na-posicao (1+ nh) nv horizontais) 0) (/= (get-arco-na-posicao nv nh verticais) 0) (/= (get-arco-na-posicao (1+ nv) nh verticais) 0)) 1)
         (t 0)
        )
        (cond
@@ -182,5 +171,24 @@
        )
     )
    )
+  )
+)
+
+(defun tabuleiro-preenchidop (tabuleiro)
+  (cond
+   ((or (equal (zeros-na-lista (first tabuleiro)) t) (equal (zeros-na-lista (second tabuleiro)) t)) nil)
+   (t t)
+  )
+)
+
+(defun zeros-na-lista (lista)
+  (cond
+   ((equal lista nil) nil)
+   ((equal (listp lista) t) (cond
+                             ((or (equal (zeros-na-lista (car lista)) t) (equal (zeros-na-lista (cdr lista)) t)) t)
+                             (t nil)
+                            ))
+   ((= lista 0) t)
+   (t nil)
   )
 )

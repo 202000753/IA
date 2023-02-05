@@ -7,18 +7,18 @@
 (defun iniciar ()
 "Permite iniciar o programa"
   (progn
-    (format t "Dots and Boxes~%")
+    (format t "~%Dots and Boxes~%")
     (format t "Escolha uma opção~%")
     (format t "0- Sair~%")
-    (format t "1- 2ª fase (Humano vs Computador ou Computador vs Computador)~%")
-    (format t "2- 1ª fase (Resolução de problemas)~%")
+    (format t "1- 1ª fase (Resolução de problemas)~%")
+    (format t "2- 2ª fase (Humano vs Computador ou Computador vs Computador)~%")
     (let ((resposta (read)))
       (cond 
        ((and (equal (equal resposta 0) nil) (equal (equal resposta 1) nil) (equal (equal resposta 2) nil)) (progn (format t "Opção Invalida ~%") (iniciar)))
        (t (cond
                ((= resposta 0) (format t "A terminar...~%"))
-               ((= resposta 1) (novo-jogo))
-               (t (escolher-nivel))
+               ((= resposta 1) (escolher-nivel))
+               (t (novo-jogo))
            )
        )
       )
@@ -30,7 +30,7 @@
 (defun novo-jogo ()
 "Permite escolher o modo de jogo"
   (progn
-    (format t "Modos~%")
+    (format t "~%Modos~%")
     (format t "Escolha uma opção~%")
     (format t "0- Sair~%")
     (format t "1- Humano vs Computador~%")
@@ -51,8 +51,69 @@
 
 ;; humano-vs-computador
 (defun humano-vs-computador ()
-"Permite jogar o modo humano vs computador"
-  
+  (let*
+      (
+       (jogador (jogador-a-iniciar))
+       (tempo (tempo-jogada-computador))
+      )
+     (jogar-humano-vs-computador jogador tempo)
+  )
+)
+
+;; jogar-humano-vs-computador
+(defun jogar-humano-vs-computador (jogador tempo)
+  (format t "Jogador: ~a~%Tempo: ~a~%" jogador tempo)
+)
+
+;; tempo-jogada-computador
+(defun tempo-jogada-computador ()
+  (progn
+    (format t "~%Qual o tempo limite para o computador jogar?~%")
+    (let ((resposta (read)))
+      (format t "~a~%" (type-of (integerp resposta)))
+      (cond 
+       ((< (equal resposta 0)) (progn (format t "Opção Invalida ~%") (tempo-jogada-computador)))
+       (t resposta)
+      )
+    )
+  )
+)
+
+;; jogador-a-iniciar
+(defun jogador-a-iniciar ()
+  (progn
+    (format t "~%Qual o jogador a iniciar o jogo~%")
+    (format t "Escolha uma opção~%")
+    (format t "0- Sair~%")
+    (format t "1- Humano~%")
+    (format t "2- Computador~%")
+    (let ((resposta (read)))
+      (cond 
+       ((and (equal (equal resposta 0) nil) (equal (equal resposta 1) nil) (equal (equal resposta 2) nil)) (progn (format t "Opção Invalida ~%") (jogador-a-iniciar)))
+       (t (cond
+               ((= resposta 0) (format t "A voltar...~%"))
+               ((= resposta 1) 'Humano)
+               (t 'Computador)
+           )
+       )
+      )
+    )
+  )
+)
+
+;; computador-vs-computador
+(defun computador-vs-computador ()
+  (let*
+      (
+       (tempo (tempo-jogada-computador))
+      )
+     (jogar-computador-vs-computador tempo)
+  )
+)
+
+;; jogar-computador-vs-computador
+(defun jogar-computador-vs-computador (tempo)
+  (format t "Tempo: ~a~%" tempo)
 )
 
 ;; escolher-nivel
