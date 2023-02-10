@@ -2,120 +2,38 @@
 ;;;; Interação com o utilizador e, escrita e leitura de ficheiros
 ;;;; Autores: Nuno Reis, Vitor Nunes
 
-(defvar *jogador1* 1)
-(defvar *jogador2* 2)
-
 ;;; Inicializaçãoo do programa
 ;; iniciar
 (defun iniciar ()
 "Permite iniciar o programa"
-  (progn
-    (format t "~%Dots and Boxes~%")
-    (format t "Escolha uma opção~%")
-    (format t "0- Sair~%")
-    (format t "1- 1ª fase (Resolução de problemas)~%")
-    (format t "2- 2ª fase (Humano vs Computador ou Computador vs Computador)~%")
-    (let ((resposta (read)))
-      (cond 
-       ((and (equal (equal resposta 0) nil) (equal (equal resposta 1) nil) (equal (equal resposta 2) nil)) (progn (format t "Opção Invalida ~%") (iniciar)))
-       (t (cond
-               ((= resposta 0) (format t "A terminar...~%"))
-               ((= resposta 1) (escolher-nivel))
-               (t (novo-jogo))
-           )
-       )
-      )
-    )
-  )
+  ;(progn
+  ;  (format t "Dots and Boxes~%")
+  ;  (format t "Escolha uma opção~%")
+  ;  (format t "0- Sair~%")
+  ;  (format t "1- Novo Jogo~%")
+  ;  (format t "2- Jogar Nivéis Do Ficheiro~%")
+  ;  (let ((resposta (read)))
+  ;    (cond 
+  ;     ((and (equal (equal resposta 0) nil) (equal (equal resposta 1) nil) (equal (equal resposta 2) nil)) (progn (format t "Opção Invalida ~%") (iniciar)))
+  ;     (t (cond
+  ;             ((= resposta 0) (format t "A terminar...~%"))
+  ;             ((= resposta 1) (novo-jogo))
+  ;             (t (escolher-nivel))
+  ;         )
+  ;     )
+  ;    )
+  ;  )
+  ;)
+  (escolher-nivel)
 )
 
 ;; novo-jogo
 (defun novo-jogo ()
-"Permite escolher o modo de jogo"
-  (progn
-    (format t "~%Modos~%")
-    (format t "Escolha uma opção~%")
-    (format t "0- Sair~%")
-    (format t "1- Humano vs Computador~%")
-    (format t "2- Computador vs Computador~%")
-    (let ((resposta (read)))
-      (cond 
-       ((and (equal (equal resposta 0) nil) (equal (equal resposta 1) nil) (equal (equal resposta 2) nil)) (progn (format t "Opção Invalida ~%") (novo-jogo)))
-       (t (cond
-               ((= resposta 0) (format t "A voltar...~%"))
-               ((= resposta 1) (humano-vs-computador))
-               (t (computador-vs-computador))
-           )
-       )
-      )
-    )
-  )
-)
-
-;; humano-vs-computador
-(defun humano-vs-computador ()
-  (let*
-      (
-       (jogador (jogador-a-iniciar))
-       (tempo (tempo-jogada-computador))
-      )
-     (jogar-humano-vs-computador jogador tempo)
-  )
-)
-
-;; jogar-humano-vs-computador
-(defun jogar-humano-vs-computador (jogador tempo &optional (tabuleiro (tabuleiro-de-jogo)))
-  (format t "Jogador: ~a~%Tempo: ~a~%" jogador tempo)
-)
-
-;; tempo-jogada-computador
-(defun tempo-jogada-computador ()
-  (progn
-    (format t "~%Qual o tempo limite para o computador jogar?~%")
-    (let ((resposta (read)))
-      (cond 
-       ((< resposta 0) (progn (format t "Opção Invalida ~%") (tempo-jogada-computador)))
-       (t resposta)
-      )
-    )
-  )
-)
-
-;; jogador-a-iniciar
-(defun jogador-a-iniciar ()
-  (progn
-    (format t "~%Qual o jogador a iniciar o jogo~%")
-    (format t "Escolha uma opção~%")
-    (format t "0- Sair~%")
-    (format t "1- Humano~%")
-    (format t "2- Computador~%")
-    (let ((resposta (read)))
-      (cond 
-       ((and (equal (equal resposta 0) nil) (equal (equal resposta 1) nil) (equal (equal resposta 2) nil)) (progn (format t "Opção Invalida ~%") (jogador-a-iniciar)))
-       (t (cond
-               ((= resposta 0) (format t "A voltar...~%"))
-               ((= resposta 1) 'Humano)
-               (t 'Computador)
-           )
-       )
-      )
-    )
-  )
-)
-
-;; computador-vs-computador
-(defun computador-vs-computador ()
-  (let*
-      (
-       (tempo (tempo-jogada-computador))
-      )
-     (jogar-computador-vs-computador tempo)
-  )
-)
-
-;; jogar-computador-vs-computador
-(defun jogar-computador-vs-computador (tempo)
-  (format t "Tempo: ~a~%" tempo)
+"Permite iniciar um novo jogo"
+  '(
+    ((0 0 0) (0 0 0) (0 0 0) (0 0 0))
+    ((0 0 0) (0 0 0) (0 0 0) (0 0 0))
+   )
 )
 
 ;; escolher-nivel
@@ -137,7 +55,7 @@
           )
         (cond 
          ((and (equal (equal resposta 0) nil) (eq (operacao-valida opcoes resposta) nil)) (progn (format t "Opção Invalida ~%") (escolher-nivel)))
-         ((equal resposta 0) (format t "A voltar...~%") nil)
+         ((equal resposta 0) (format t "A terminar...~%") nil)
          (t (escolher-algoritmo (escolher-tabuleiro problemas resposta)))
         )
       )
@@ -245,12 +163,12 @@
 
 (defun escrever-no (no gerados expandidos)
   (cond 
-   ((NULL (no-pai no)) (with-open-file (str "C:/Users/nunor/Desktop/IA/P1/log.dat" :direction :output :if-exists :append :if-does-not-exist :create)
+   ((NULL (no-pai no)) (with-open-file (str "C:/Users/User/Documents/IA_ProjetoP1/log.dat" :direction :output :if-exists :append :if-does-not-exist :create)
                          (format str "~%~%Nos gerados: ~A, Nos expandidos: ~A, Penetrância: ~A~%" gerados expandidos (/ (tamanho-caminho no) gerados))
                          (format str "Estado: ~A, Profundidade: ~A, Heuristica: ~A, Custo: ~A ~%" (no-estado no) (no-profundidade no) (no-heuristica no) (no-custo no))
                        )
    )
-   (T (escrever-no (no-pai no) gerados expandidos) (with-open-file (str "C:/Users/nunor/Desktop/IA/P1/log.dat" :direction :output :if-exists :append :if-does-not-exist :create)
+   (T (escrever-no (no-pai no) gerados expandidos) (with-open-file (str "C:/Users/User/Documents/IA_ProjetoP1/log.dat" :direction :output :if-exists :append :if-does-not-exist :create)
                                                          (format str "Estado: ~A, Profundidade: ~A, Heuristica: ~A, Custo: ~A ~%" (no-estado no) (no-profundidade no) (no-heuristica no) (no-custo no))
                                                        )
    )
@@ -261,7 +179,7 @@
 ;; (get-problemas)
 (defun get-problemas (&optional file (problemas '()))
   (cond
-   ((null file) (with-open-file (open "C:/Users/nunor/Desktop/IA/P1/problemas.dat" :direction :input :if-does-not-exist nil)
+   ((null file) (with-open-file (open "C:/Users/nunor/Desktop/problemas.dat" :direction :input :if-does-not-exist nil)
                   (get-problemas open (cons (read open) nil))
                 )
    )
@@ -280,66 +198,7 @@
 
 ;; (get-problemas1)
 (defun get-problemas1 ()
-  (with-open-file (open "C:/Users/nunor/Desktop/IA/P1/problemas1.dat" :direction :input :if-does-not-exist nil)
+  (with-open-file (open "C:/Users/nunor/Desktop/problemas1.dat" :direction :input :if-does-not-exist nil)
     (read open)
-  )
-)
-
-;; (jogada-humano)
-(defun jogada-humano (tabuleiro jogador)
-  (let*
-      (
-       (operacao (ler-operacao))
-       (linha (cond
-                ((equal operacao "horizontal") (ler-valor-menor 'linha (list-length (get-arcos-horizontais tabuleiro))))
-                (t (ler-valor-menor 'linha (list-length (get-arcos-verticais tabuleiro))))
-              )
-       )
-       (coluna (cond
-                ((equal operacao "horizontal") (ler-valor-menor 'coluna (list-length (nth linha (get-arcos-horizontais tabuleiro)))))
-                (t (ler-valor-menor 'coluna (list-length (nth linha (get-arcos-verticais tabuleiro)))))
-              )
-       )
-      )
-    (cond
-     ((and (equal operacao "horizontal") (= (get-arco-na-posicao linha coluna (get-arcos-horizontais tabuleiro)) 0)) (arco-na-posicao linha coluna (get-arcos-horizontais tabuleiro) jogador))
-     ((and (equal operacao "vertical") (= (get-arco-na-posicao linha coluna (get-arcos-verticais tabuleiro)) 0)) (arco-na-posicao linha coluna (get-arcos-verticais tabuleiro) jogador))
-     (t nil)
-    )
-  )
-)
-
-;; (ler-operacao)
-(defun ler-operacao ()
-  (progn
-    (format t "~%Operações~%")
-    (format t "Escolha uma opção~%")
-    (format t "0- Sair~%")
-    (format t "1- Arco Horizontal~%")
-    (format t "2- Arco Vertical~%")
-    (let ((resposta (read)))
-      (cond 
-       ((and (equal (equal resposta 0) nil) (equal (equal resposta 1) nil) (equal (equal resposta 2) nil)) (progn (format t "Opção Invalida ~%") (ler-operacao)))
-       (t (cond
-               ((= resposta 0) (format t "A voltar...~%"))
-               ((= resposta 1) "horizontal")
-               (t "vertical")
-           )
-       )
-      )
-    )
-  )
-)
-
-;; (ler-valor-menor)
-(defun ler-valor-menor (texto valor)
-  (progn
-    (format t "~%Insira o valor de ~a (maior que 0 e menor que ~a)" texto valor)
-    (let ((resposta (read)))
-      (cond 
-       ((or (< resposta 0) (> resposta valor)) (progn (format t "Opção Invalida ~%") (ler-valor-menor texto valor)))
-       (t resposta)
-      )
-    )
   )
 )
